@@ -80,6 +80,15 @@
             position: absolute; left: 19px; top: 15px; bottom: 15px; width: 2px;
             background-color: #bfdbfe; border-left: 2px dashed #bfdbfe; z-index: 0;
         }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        .modal.show { display: flex; animation: fadeIn 0.2s; }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-100">
@@ -93,7 +102,7 @@
             </div>
             <div class="text-right">
                 <button onclick="switchTab('tools')" class="text-slate-400 hover:text-ocean transition-colors">
-                    <i class="fas fa-th-large"></i>
+                    <i class="fas fa-suitcase"></i>
                 </button>
             </div>
         </div>
@@ -120,7 +129,7 @@
 
             <!-- Flight Card -->
             <h3 class="font-bold text-slate-700 mb-3 flex items-center"><i class="fas fa-ticket-alt text-ocean mr-2"></i> 航班資訊</h3>
-            <div class="bg-white rounded-2xl shadow-card overflow-hidden mb-6">
+            <div class="bg-white rounded-2xl shadow-card overflow-hidden mb-4">
                 <!-- Outbound -->
                 <div class="p-5">
                     <div class="flex justify-between items-center mb-4">
@@ -149,14 +158,12 @@
                         </div>
                     </div>
                 </div>
-                
                 <!-- Divider -->
                 <div class="relative h-4 bg-slate-50">
                     <div class="absolute w-4 h-4 bg-slate-100 rounded-full -left-2 top-0"></div>
                     <div class="absolute w-4 h-4 bg-slate-100 rounded-full -right-2 top-0"></div>
                     <div class="absolute top-1/2 left-2 right-2 border-t-2 border-dashed border-slate-300"></div>
                 </div>
-
                 <!-- Inbound -->
                 <div class="p-5 bg-slate-50">
                     <div class="flex justify-between items-center mb-4">
@@ -185,6 +192,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Boarding Notes -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-6 text-xs text-yellow-800">
+                <h4 class="font-bold mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> 搭機重要須知</h4>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>行動電源、鋰電池**必須**隨身攜帶，不可託運。</li>
+                    <li>隨身液體單瓶限 100ml 內，需裝入透明夾鏈袋。</li>
+                    <li>請於起飛前 **2.5 小時** 抵達機場報到。</li>
+                    <li>日本入境禁止攜帶任何肉類製品 (含真空包裝)。</li>
+                </ul>
             </div>
 
             <!-- Hotel Info -->
@@ -221,7 +239,18 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2">
+                <!-- Amenities -->
+                <div class="border-t border-slate-100 pt-3 mt-3">
+                    <p class="text-xs font-bold text-slate-500 mb-2">設施服務：</p>
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="text-[10px] text-slate-600"><i class="fas fa-wifi text-lg mb-1 block text-ocean"></i>免費WiFi</div>
+                        <div class="text-[10px] text-slate-600"><i class="fas fa-coffee text-lg mb-1 block text-orange-400"></i>迎賓飲料</div>
+                        <div class="text-[10px] text-slate-600"><i class="fas fa-tshirt text-lg mb-1 block text-blue-400"></i>投幣洗衣</div>
+                        <div class="text-[10px] text-slate-600"><i class="fas fa-luggage-cart text-lg mb-1 block text-purple-400"></i>行李寄放</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-4">
                     <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Torifito+Naha+Asahibashi" target="_blank" class="flex-1 bg-slate-800 text-white text-center py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-700"><i class="fas fa-location-arrow mr-1"></i> 導航</a>
                     <a href="tel:+81988606300" class="flex-1 bg-white text-slate-700 border border-slate-200 text-center py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-50"><i class="fas fa-phone mr-1"></i> 通話</a>
                 </div>
@@ -243,6 +272,7 @@
                 <button onclick="filterGuide('food')" class="guide-filter px-4 py-1.5 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 whitespace-nowrap transition-all">在地美食</button>
                 <button onclick="filterGuide('spot')" class="guide-filter px-4 py-1.5 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 whitespace-nowrap transition-all">必訪景點</button>
                 <button onclick="filterGuide('shop')" class="guide-filter px-4 py-1.5 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 whitespace-nowrap transition-all">購物血拼</button>
+                <button onclick="filterGuide('buy')" class="guide-filter px-4 py-1.5 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 whitespace-nowrap transition-all">必買伴手禮</button>
             </div>
 
             <div id="guide-container" class="space-y-4 pb-6"></div>
@@ -252,7 +282,7 @@
         <section id="traffic" class="tab-content">
             <h2 class="text-2xl font-bold text-deep-sea mb-4">交通全攻略</h2>
 
-            <!-- Monorail Full Map (Font Size Fixed) -->
+            <!-- Monorail Full Map -->
             <div class="bg-white rounded-2xl p-5 shadow-card mb-6 border border-slate-100">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-700 flex items-center">
@@ -273,7 +303,8 @@
             <!-- Bus Routes Customized -->
             <h3 class="font-bold text-slate-700 mb-3 ml-1"><i class="fas fa-bus text-bus mr-2"></i> 行程專屬公車卡</h3>
             <div class="space-y-4 pb-6">
-                <!-- Day 2 Bus -->
+                
+                <!-- Day 2 Bus (120) -->
                 <div class="bg-white rounded-xl shadow-sm border-l-4 border-bus overflow-hidden">
                     <div class="bg-blue-50 p-3 flex justify-between items-center border-b border-blue-100">
                         <div class="font-bold text-blue-800 text-sm">Day 2 回程: 120 / 28 號</div>
@@ -284,27 +315,18 @@
                         <div class="space-y-6 relative z-10">
                             <div class="flex items-start">
                                 <div class="w-2.5 h-2.5 rounded-full bg-bus ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
-                                <div>
-                                    <div class="font-bold text-slate-800 text-sm">桑江 (Kuwae)</div>
-                                    <div class="text-xs text-slate-500">上車點 (靠近美國村入口)</div>
-                                </div>
+                                <div><div class="font-bold text-slate-800 text-sm">桑江 (Kuwae)</div><div class="text-xs text-slate-500">上車點 (靠近美國村入口)</div></div>
                             </div>
-                            <div class="flex items-center">
-                                <div class="w-2 h-2 rounded-full bg-slate-300 ml-[12px] mr-4"></div>
-                                <div class="text-xs text-slate-400">行經 58 號國道 (約 60 分鐘)</div>
-                            </div>
+                            <div class="flex items-center"><div class="w-2 h-2 rounded-full bg-slate-300 ml-[12px] mr-4"></div><div class="text-xs text-slate-400">行經 58 號國道 (約 60 分鐘)</div></div>
                             <div class="flex items-start">
                                 <div class="w-2.5 h-2.5 rounded-full bg-bus ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
-                                <div>
-                                    <div class="font-bold text-slate-800 text-sm">那霸公車總站 (旭橋)</div>
-                                    <div class="text-xs text-slate-500">終點站下車，旁邊即是飯店</div>
-                                </div>
+                                <div><div class="font-bold text-slate-800 text-sm">那霸公車總站 (旭橋)</div><div class="text-xs text-slate-500">終點站下車，旁邊即是飯店</div></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Day 3 Bus (To Okinawa World) -->
+                <!-- Day 3 Bus (54/83) -->
                 <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 overflow-hidden">
                     <div class="bg-purple-50 p-3 flex justify-between items-center border-b border-purple-100">
                         <div class="font-bold text-purple-800 text-sm">Day 3 去程: 54 / 83 號</div>
@@ -315,23 +337,17 @@
                         <div class="space-y-6 relative z-10">
                             <div class="flex items-start">
                                 <div class="w-2.5 h-2.5 rounded-full bg-purple-500 ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
-                                <div>
-                                    <div class="font-bold text-slate-800 text-sm">那霸公車總站</div>
-                                    <div class="text-xs text-slate-500">建議搭乘 08:40 班次</div>
-                                </div>
+                                <div><div class="font-bold text-slate-800 text-sm">那霸公車總站</div><div class="text-xs text-slate-500">建議搭乘 08:40 班次</div></div>
                             </div>
                             <div class="flex items-start">
                                 <div class="w-2.5 h-2.5 rounded-full bg-purple-500 ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
-                                <div>
-                                    <div class="font-bold text-slate-800 text-sm">玉泉洞前</div>
-                                    <div class="text-xs text-slate-500">終點站下車</div>
-                                </div>
+                                <div><div class="font-bold text-slate-800 text-sm">玉泉洞前</div><div class="text-xs text-slate-500">終點站下車</div></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Day 3 Shuttle -->
+                <!-- Day 3 Shuttle (TK02) -->
                 <div class="bg-white rounded-xl shadow-sm border-l-4 border-pink-500 overflow-hidden">
                     <div class="bg-pink-50 p-3 flex justify-between items-center border-b border-pink-100">
                         <div class="font-bold text-pink-800 text-sm">Day 3 接駁: TK02</div>
@@ -339,14 +355,30 @@
                     </div>
                     <div class="p-4">
                         <div class="flex items-center justify-between text-sm font-bold text-slate-700 mb-2">
-                            <span>瀨長島飯店前</span>
-                            <i class="fas fa-arrow-right text-slate-300"></i>
-                            <span>Ashibinaa Outlet</span>
+                            <span>瀨長島飯店前</span><i class="fas fa-arrow-right text-slate-300"></i><span>Ashibinaa Outlet</span>
                         </div>
-                        <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded">
-                            <i class="fas fa-clock text-pink-500 mr-1"></i> 每小時約 1-2 班車。<br>
-                            <i class="fas fa-yen-sign text-pink-500 mr-1"></i> 若錯過建議直接搭計程車 (約 ¥1500)。
-                        </p>
+                        <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded"><i class="fas fa-clock text-pink-500 mr-1"></i> 每小時約 1-2 班車。<br><i class="fas fa-yen-sign text-pink-500 mr-1"></i> 若錯過建議直接搭計程車 (約 ¥1500)。</p>
+                    </div>
+                </div>
+
+                 <!-- Day 3 Return (89) NEW -->
+                 <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 overflow-hidden">
+                    <div class="bg-green-50 p-3 flex justify-between items-center border-b border-green-100">
+                        <div class="font-bold text-green-800 text-sm">Day 3 回程: 89 號 (糸滿線)</div>
+                        <div class="text-[10px] bg-green-200 text-green-800 px-2 py-0.5 rounded-full font-bold">往那霸</div>
+                    </div>
+                    <div class="p-4 relative">
+                        <div class="bus-line border-green-300"></div>
+                        <div class="space-y-6 relative z-10">
+                            <div class="flex items-start">
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500 ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
+                                <div><div class="font-bold text-slate-800 text-sm">Ashibinaa Outlet</div><div class="text-xs text-slate-500">附近公車站上車</div></div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500 ml-[11px] mr-4 mt-1.5 ring-4 ring-white"></div>
+                                <div><div class="font-bold text-slate-800 text-sm">那霸公車總站</div><div class="text-xs text-slate-500">班次頻繁，車程約40分鐘</div></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -356,43 +388,61 @@
         <section id="wallet" class="tab-content">
             <h2 class="text-2xl font-bold text-deep-sea mb-4">記帳 & 匯率</h2>
             
-            <!-- Exchange & Tax Tool (Internal) -->
+            <!-- Exchange & Tax Tool (Fixed Logic) -->
             <div class="grid grid-cols-1 gap-3 mb-4">
-                <!-- Tax Free Calc -->
-                <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm flex flex-col justify-center">
+                <!-- Live Rate & Currency Swap -->
+                <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="text-xs text-slate-400 font-bold"><i class="fas fa-sync-alt mr-1"></i> 匯率換算</div>
+                        <a href="https://www.google.com/finance/quote/JPY-TWD" target="_blank" class="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded text-white transition-colors">查詢即時匯率 <i class="fas fa-external-link-alt ml-1"></i></a>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <select id="currency-direction" class="bg-slate-700 text-white text-xs p-1 rounded border-none outline-none" onchange="updateCurrencyLabel()">
+                            <option value="jpy_to_twd">JPY ➝ TWD</option>
+                            <option value="twd_to_jpy">TWD ➝ JPY</option>
+                        </select>
+                        <input type="number" id="rate-input" value="0.215" class="w-16 bg-transparent text-right font-bold text-white outline-none border-b border-slate-500 focus:border-ocean" step="0.001" oninput="calculateCurrency()">
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="calc-input" placeholder="輸入金額" class="flex-1 bg-slate-700 border-none rounded px-3 py-2 text-lg text-white outline-none font-mono placeholder-slate-500" oninput="calculateCurrency()">
+                    </div>
+                    <div id="calc-result" class="text-right text-lg font-bold text-yellow-400 font-mono mt-2 h-6">¥0 ≈ NT$0</div>
+                </div>
+
+                <!-- Tax Free Calc (Updated Logic) -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center">
                     <div class="flex justify-between items-center mb-2">
-                        <div class="text-xs text-slate-400 font-bold"><i class="fas fa-shopping-bag mr-1"></i> 日本免稅計算 (10%)</div>
-                        <div class="text-[10px] text-yellow-400 border border-yellow-400 px-1 rounded">滿 ¥5000 可退</div>
+                        <div class="text-xs text-slate-500 font-bold"><i class="fas fa-shopping-bag mr-1"></i> 日本免稅 (10%)</div>
+                        <div class="text-[10px] text-red-500 border border-red-200 bg-red-50 px-1 rounded">滿 ¥5000 可退</div>
+                    </div>
+                    <div class="bg-red-50 p-2 rounded text-[10px] text-red-600 mb-2">
+                        <i class="fas fa-info-circle mr-1"></i> 消耗品需密封，日本免稅是「含稅價 ÷ 1.1」。
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-mono text-slate-400">¥</span>
-                        <input type="number" id="tax-input" placeholder="輸入含稅價格" class="flex-1 bg-slate-700 border-none rounded px-2 py-2 text-lg text-white outline-none font-mono placeholder-slate-500" oninput="calcTax()">
+                        <input type="number" id="tax-input" placeholder="輸入含稅價格" class="flex-1 bg-slate-50 border-none rounded px-2 py-2 text-lg text-slate-700 outline-none font-mono placeholder-slate-300" oninput="calcTax()">
                     </div>
-                    <div class="mt-3 pt-2 border-t border-slate-600 flex justify-between items-center">
-                        <span class="text-xs text-slate-400">退稅金額</span>
-                        <span class="text-sm font-bold font-mono text-white">¥<span id="refund-amount">0</span></span>
+                    <div class="mt-2 flex justify-between items-center text-sm">
+                        <span class="text-xs text-slate-400">退稅金額 (Refund)</span>
+                        <span class="font-bold font-mono text-slate-600">¥<span id="refund-amount">0</span></span>
                     </div>
-                    <div class="mt-1 flex justify-between items-center">
-                        <span class="text-xs text-slate-400">免稅後價格</span>
-                        <span class="text-lg font-bold font-mono text-yellow-400">¥<span id="tax-result">0</span></span>
+                     <div class="mt-1 flex justify-between items-center text-sm">
+                        <span class="text-xs text-slate-400">實際支付 (No Tax)</span>
+                        <span class="font-bold font-mono text-ocean text-lg">¥<span id="tax-result">0</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Budget Control (Fixed Clickability) -->
+            <!-- Budget Control -->
             <div class="bg-white rounded-2xl p-5 shadow-sm mb-4 border border-slate-100 relative">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="text-xs font-bold text-slate-400 uppercase">總預算進度 (JPY)</h3>
-                    <!-- Fixed Button: Added hover effect and increased touch target -->
-                    <button onclick="toggleBudgetInput()" class="text-xs text-ocean font-bold hover:bg-blue-50 px-2 py-1 rounded transition-colors"><i class="fas fa-edit mr-1"></i>修改預算</button>
+                    <button onclick="toggleBudgetInput()" class="text-xs text-ocean font-bold hover:bg-blue-50 px-2 py-1 rounded transition-colors relative z-10"><i class="fas fa-edit mr-1"></i>修改預算</button>
                 </div>
-                
-                <!-- Hidden Input Area -->
                 <div id="budget-input-box" class="hidden mb-3 bg-slate-50 p-2 rounded-lg flex gap-2 border border-slate-200">
                     <input type="number" id="new-budget-input" class="w-full text-sm border border-slate-300 rounded px-2 py-1 outline-none text-slate-700 font-mono" placeholder="輸入新預算">
                     <button onclick="saveNewBudget()" class="bg-ocean text-white text-xs px-3 py-1 rounded font-bold whitespace-nowrap active:scale-95 transition-transform">確定</button>
                 </div>
-
                 <div class="relative h-3 bg-slate-100 rounded-full overflow-hidden mb-2">
                     <div id="budget-bar" class="absolute top-0 left-0 h-full bg-green-400 transition-all duration-500" style="width: 0%"></div>
                 </div>
@@ -402,34 +452,31 @@
                 </div>
             </div>
 
-            <!-- Expense Calculator (Internal) -->
+            <!-- Expense Form -->
             <div class="bg-white rounded-2xl shadow-sm p-4 border border-slate-100 mb-6">
-                <div class="flex justify-between text-xs text-slate-400 mb-2">
-                    <span>記帳金額</span>
-                    <span class="flex items-center">匯率: <input type="number" id="exchange-rate" value="0.215" class="w-12 bg-transparent text-right font-bold text-slate-600 outline-none ml-1 border-b border-slate-300" step="0.001"></span>
-                </div>
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="calc-input" placeholder="例如: 1200+580" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-3 font-mono text-lg outline-none text-slate-800 placeholder-slate-400">
-                    <button onclick="calculateCurrency()" class="bg-ocean hover:bg-sky-400 text-white w-12 rounded-lg font-bold text-xl shadow-sm transition-colors">=</button>
-                </div>
-                <div id="calc-result" class="text-right text-sm font-bold text-ocean font-mono h-5 opacity-0 transition-opacity"></div>
-                
-                <hr class="border-slate-100 my-3">
-
                 <h3 class="font-bold text-slate-700 mb-3 flex items-center text-sm">
                     <i class="fas fa-plus-circle text-ocean mr-2"></i> 新增消費
                 </h3>
-                
-                <!-- Fixed Layout for Add Expense: Stacked to prevent overflow -->
                 <div class="space-y-3">
                     <div class="flex gap-2">
+                        <select id="expense-category" class="w-1/3 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-ocean text-slate-700">
+                            <option value="食">食 (餐飲)</option>
+                            <option value="衣">衣 (服飾)</option>
+                            <option value="住">住 (飯店)</option>
+                            <option value="行">行 (交通)</option>
+                            <option value="育">育 (票券)</option>
+                            <option value="樂">樂 (娛樂)</option>
+                            <option value="伴">伴 (伴手禮)</option>
+                            <option value="藥">藥 (藥妝)</option>
+                            <option value="其">其 (其他)</option>
+                        </select>
                         <select id="expense-payer" class="w-1/3 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-ocean text-slate-700">
                             <option value="公費">公費</option>
                             <option value="自己">自己</option>
                             <option value="爸爸">爸爸</option>
                             <option value="媽媽">媽媽</option>
                         </select>
-                        <input type="text" id="expense-item" placeholder="消費項目" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-ocean text-slate-700">
+                        <input type="text" id="expense-item" placeholder="品項" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-ocean text-slate-700">
                     </div>
                     <input type="number" id="expense-amount" placeholder="日幣金額 (¥)" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-ocean text-slate-700 font-mono">
                     <button onclick="addExpense()" class="w-full bg-deep-sea text-white py-3 rounded-lg font-bold text-sm shadow-md active:scale-95 transition-transform flex justify-center items-center">
@@ -438,7 +485,7 @@
                 </div>
             </div>
 
-            <!-- Prettier List -->
+            <!-- List -->
             <div id="expense-list" class="space-y-3 pb-6"></div>
         </section>
 
@@ -446,166 +493,131 @@
         <section id="tools" class="tab-content">
             <h2 class="text-2xl font-bold text-deep-sea mb-4">實用工具</h2>
 
-            <!-- Weather (Fixed) -->
+            <!-- Weather -->
             <div class="bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-2xl p-5 shadow-lg mb-6 relative overflow-hidden">
                 <i class="fas fa-cloud-sun absolute -right-4 -top-4 text-8xl text-white/20"></i>
                 <div class="relative z-10">
                     <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="font-bold text-lg">2026年 2月預測</h3>
-                            <p class="text-xs text-blue-100 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> 那霸市</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-bold">21°C</div>
-                            <div class="text-xs text-blue-100">Avg</div>
-                        </div>
+                        <div><h3 class="font-bold text-lg">2026年 2月預測</h3><p class="text-xs text-blue-100 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> 那霸市</p></div>
+                        <div class="text-right"><div class="text-3xl font-bold">21°C</div><div class="text-xs text-blue-100">Avg</div></div>
                     </div>
                     <div class="grid grid-cols-5 gap-2 text-center text-xs">
-                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm">
-                            <div class="opacity-80">2/24</div>
-                            <i class="fas fa-sun my-1 text-lg text-yellow-300"></i>
-                            <div class="font-bold">22°</div>
-                        </div>
-                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm">
-                            <div class="opacity-80">2/25</div>
-                            <i class="fas fa-cloud-sun my-1 text-lg"></i>
-                            <div class="font-bold">20°</div>
-                        </div>
-                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm">
-                            <div class="opacity-80">2/26</div>
-                            <i class="fas fa-cloud my-1 text-lg"></i>
-                            <div class="font-bold">19°</div>
-                        </div>
-                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm">
-                            <div class="opacity-80">2/27</div>
-                            <i class="fas fa-sun my-1 text-lg text-yellow-300"></i>
-                            <div class="font-bold">23°</div>
-                        </div>
-                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm">
-                            <div class="opacity-80">2/28</div>
-                            <i class="fas fa-cloud-sun my-1 text-lg"></i>
-                            <div class="font-bold">21°</div>
-                        </div>
+                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm"><div class="opacity-80">2/24</div><i class="fas fa-sun my-1 text-lg text-yellow-300"></i><div class="font-bold">22°</div></div>
+                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm"><div class="opacity-80">2/25</div><i class="fas fa-cloud-sun my-1 text-lg"></i><div class="font-bold">20°</div></div>
+                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm"><div class="opacity-80">2/26</div><i class="fas fa-cloud my-1 text-lg"></i><div class="font-bold">19°</div></div>
+                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm"><div class="opacity-80">2/27</div><i class="fas fa-sun my-1 text-lg text-yellow-300"></i><div class="font-bold">23°</div></div>
+                        <div class="bg-white/20 rounded p-1.5 backdrop-blur-sm"><div class="opacity-80">2/28</div><i class="fas fa-cloud-sun my-1 text-lg"></i><div class="font-bold">21°</div></div>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-white/20 text-[10px] text-blue-50">
-                        <i class="fas fa-tshirt mr-1"></i> 建議穿搭：短袖搭配薄外套，海邊風大請帶帽子。
-                    </div>
+                    <div class="mt-3 pt-2 border-t border-white/20 text-[10px] text-blue-50"><i class="fas fa-tshirt mr-1"></i> 建議穿搭：短袖搭配薄外套，海邊風大請帶帽子。</div>
                 </div>
             </div>
 
-            <!-- Fixed Japanese Phrases (Tabs + TTS) -->
+            <!-- New Checklist -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+                <div class="bg-green-50 p-3 border-b border-green-100 flex justify-between items-center">
+                    <h3 class="font-bold text-green-800 text-sm"><i class="fas fa-clipboard-check mr-2"></i> 行李檢查表</h3>
+                    <span class="text-[10px] text-green-600" id="checklist-progress">0%</span>
+                </div>
+                <div id="checklist-items" class="p-2 space-y-1"></div>
+            </div>
+
+            <!-- Japanese Phrases -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
                 <div class="bg-indigo-50 p-3 border-b border-indigo-100 flex justify-between items-center">
                     <h3 class="font-bold text-indigo-800 text-sm"><i class="fas fa-language mr-2"></i> 情境式日文 (點擊發音)</h3>
                 </div>
-                
-                <!-- Category Tabs -->
                 <div class="flex text-xs border-b border-slate-100 bg-slate-50">
                     <button onclick="switchPhraseTab('basic')" id="tab-basic" class="flex-1 py-2 font-bold text-indigo-600 border-b-2 border-indigo-500 bg-white transition-all">基本</button>
                     <button onclick="switchPhraseTab('dining')" id="tab-dining" class="flex-1 py-2 text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-all">餐廳</button>
                     <button onclick="switchPhraseTab('shopping')" id="tab-shopping" class="flex-1 py-2 text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-all">購物</button>
                     <button onclick="switchPhraseTab('traffic')" id="tab-traffic" class="flex-1 py-2 text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-all">交通</button>
                 </div>
-
-                <!-- Phrases Content -->
                 <div class="bg-white min-h-[200px]">
-                    <!-- Basic -->
                     <div id="phrases-basic" class="phrase-group active divide-y divide-slate-50">
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('こんにちは')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">你好</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Konnichiwa</div>
-                            <div class="text-xs text-slate-400">こんにちは</div>
+                            <div class="text-sm font-bold text-slate-800">Konnichiwa</div><div class="text-xs text-slate-400">こんにちは</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('ありがとう')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">謝謝</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Arigatou</div>
-                            <div class="text-xs text-slate-400">ありがとう</div>
+                            <div class="text-sm font-bold text-slate-800">Arigatou</div><div class="text-xs text-slate-400">ありがとう</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('すみません')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">不好意思 / 請問</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Sumimasen</div>
-                            <div class="text-xs text-slate-400">すみません</div>
+                            <div class="text-sm font-bold text-slate-800">Sumimasen</div><div class="text-xs text-slate-400">すみません</div>
                         </div>
                     </div>
-
-                    <!-- Dining -->
                     <div id="phrases-dining" class="phrase-group divide-y divide-slate-50">
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('メニューをください')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">請給我菜單</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Menyu o kudasai</div>
-                            <div class="text-xs text-slate-400">メニューをください</div>
+                            <div class="text-sm font-bold text-slate-800">Menyu o kudasai</div><div class="text-xs text-slate-400">メニューをください</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('これはなんですか')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">這是什麼？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Kore wa nan desu ka?</div>
-                            <div class="text-xs text-slate-400">これは何ですか？</div>
+                            <div class="text-sm font-bold text-slate-800">Kore wa nan desu ka?</div><div class="text-xs text-slate-400">これは何ですか？</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('お会計お願いします')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">我要結帳</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">O-kaikei onegaishimasu</div>
-                            <div class="text-xs text-slate-400">お会計お願いします</div>
+                            <div class="text-sm font-bold text-slate-800">O-kaikei onegaishimasu</div><div class="text-xs text-slate-400">お会計お願いします</div>
+                        </div>
+                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('お水ください')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">請給我水</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Omizu kudasai</div><div class="text-xs text-slate-400">お水ください</div>
+                        </div>
+                        <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('ネギ抜きでお願いします')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">不要蔥</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Negi nuki de onegaishimasu</div><div class="text-xs text-slate-400">ネギ抜きでお願いします</div>
                         </div>
                     </div>
-
-                    <!-- Shopping -->
                     <div id="phrases-shopping" class="phrase-group divide-y divide-slate-50">
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('いくらですか')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">多少錢？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Ikura desu ka?</div>
-                            <div class="text-xs text-slate-400">いくらですか？</div>
+                            <div class="text-sm font-bold text-slate-800">Ikura desu ka?</div><div class="text-xs text-slate-400">いくらですか？</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('免税できますか')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">可以免稅嗎？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Men-zei dekimasu ka?</div>
-                            <div class="text-xs text-slate-400">免税できますか？</div>
+                            <div class="text-sm font-bold text-slate-800">Men-zei dekimasu ka?</div><div class="text-xs text-slate-400">免税できますか？</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('袋ください')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">請給我袋子</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Fukuro kudasai</div>
-                            <div class="text-xs text-slate-400">袋ください</div>
+                            <div class="text-sm font-bold text-slate-800">Fukuro kudasai</div><div class="text-xs text-slate-400">袋ください</div>
+                        </div>
+                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('試着できますか')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">可以試穿嗎？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Shichaku dekimasu ka?</div><div class="text-xs text-slate-400">試着できますか？</div>
+                        </div>
+                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('新しいのありますか')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">有新的嗎？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Atarashii no arimasu ka?</div><div class="text-xs text-slate-400">新しいのありますか？</div>
+                        </div>
+                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('レシートください')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">請給我收據</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Reshi-to kudasai</div><div class="text-xs text-slate-400">レシートください</div>
                         </div>
                     </div>
-
-                    <!-- Traffic -->
                     <div id="phrases-traffic" class="phrase-group divide-y divide-slate-50">
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('空港に行きたいです')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">我想去機場</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Ku-ko ni ikitai desu</div>
-                            <div class="text-xs text-slate-400">空港に行きたいです</div>
+                            <div class="text-sm font-bold text-slate-800">Ku-ko ni ikitai desu</div><div class="text-xs text-slate-400">空港に行きたいです</div>
                         </div>
                         <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('トイレはどこですか')">
                             <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">廁所在哪裡？</span><i class="fas fa-volume-up text-indigo-300"></i></div>
-                            <div class="text-sm font-bold text-slate-800">Toire wa doko desu ka?</div>
-                            <div class="text-xs text-slate-400">トイレはどこですか？</div>
+                            <div class="text-sm font-bold text-slate-800">Toire wa doko desu ka?</div><div class="text-xs text-slate-400">トイレはどこですか？</div>
+                        </div>
+                        <div class="p-3 hover:bg-slate-50 cursor-pointer active:bg-indigo-50" onclick="speakJapanese('ここで止めてください')">
+                            <div class="flex justify-between items-center mb-1"><span class="text-xs text-slate-500 font-bold">請在這裡停</span><i class="fas fa-volume-up text-indigo-300"></i></div>
+                            <div class="text-sm font-bold text-slate-800">Koko de tomete kudasai</div><div class="text-xs text-slate-400">ここで止めてください</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Memo -->
+            <!-- Memo & Backup -->
             <div class="bg-white rounded-2xl shadow-sm p-5 mb-6 border border-slate-100">
                 <h3 class="font-bold text-slate-700 mb-3"><i class="fas fa-sticky-note text-yellow-500 mr-2"></i> 備忘錄</h3>
                 <textarea id="memo-area" class="w-full h-32 bg-yellow-50 border border-yellow-100 rounded-xl p-3 text-sm resize-none outline-none focus:ring-1 focus:ring-yellow-300 text-slate-700 leading-relaxed" placeholder="輸入文字 (自動儲存)..."></textarea>
             </div>
-
-            <!-- Emergency Contacts -->
-            <div class="bg-white rounded-2xl shadow-sm p-5 mb-6 border-l-4 border-red-500">
-                <h3 class="font-bold text-red-600 mb-3"><i class="fas fa-exclamation-triangle mr-2"></i> 緊急聯絡</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="tel:110" class="bg-red-50 text-red-700 p-3 rounded-lg text-center font-bold text-sm block hover:bg-red-100 border border-red-100">
-                        <i class="fas fa-user-shield block mb-1 text-lg"></i> 警察 110
-                    </a>
-                    <a href="tel:119" class="bg-red-50 text-red-700 p-3 rounded-lg text-center font-bold text-sm block hover:bg-red-100 border border-red-100">
-                        <i class="fas fa-ambulance block mb-1 text-lg"></i> 救護 119
-                    </a>
-                    <a href="tel:+81-80-1009-2436" class="col-span-2 bg-slate-50 text-slate-700 p-3 rounded-lg text-center border border-slate-200 text-sm block hover:bg-slate-100">
-                        <div class="font-bold text-red-600">外交部旅外急難救助 (24H)</div>
-                        <div class="font-mono text-xs text-slate-500 mt-1">+81-80-1009-2436</div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Backup -->
+            
             <div class="bg-white rounded-2xl shadow-sm p-5 mb-6 border border-slate-100">
                 <h3 class="font-bold text-slate-700 mb-3 text-sm"><i class="fas fa-database text-slate-400 mr-2"></i> 資料備份</h3>
                 <div class="grid grid-cols-2 gap-3">
@@ -616,6 +628,24 @@
                 </div>
             </div>
         </section>
+
+        <!-- Edit Modal -->
+        <div id="event-modal" class="modal">
+            <div class="bg-white rounded-2xl p-5 w-11/12 max-w-sm shadow-2xl">
+                <h3 class="text-lg font-bold text-slate-800 mb-4" id="modal-title">編輯行程</h3>
+                <div class="space-y-3">
+                    <input type="text" id="event-time" placeholder="時間" class="w-full border border-slate-300 rounded p-2 text-sm">
+                    <input type="text" id="event-content" placeholder="行程內容" class="w-full border border-slate-300 rounded p-2 text-sm">
+                    <input type="text" id="event-note" placeholder="備註" class="w-full border border-slate-300 rounded p-2 text-sm">
+                    <select id="event-type" class="w-full border border-slate-300 rounded p-2 text-sm"><option value="transport">交通</option><option value="food">美食</option><option value="spot">景點</option><option value="shop">購物</option><option value="stay">住宿</option></select>
+                </div>
+                <div class="flex justify-end gap-2 mt-5">
+                    <button onclick="closeModal()" class="text-slate-500 px-3 py-2 text-sm">取消</button>
+                    <button onclick="deleteEventConfirm()" class="text-red-500 px-3 py-2 text-sm" id="btn-delete">刪除</button>
+                    <button onclick="saveEvent()" class="bg-ocean text-white px-4 py-2 rounded-lg text-sm font-bold">儲存</button>
+                </div>
+            </div>
+        </div>
 
     </main>
 
@@ -635,7 +665,7 @@
                 <i class="fas fa-wallet text-lg mb-1"></i><span class="text-[10px] font-medium">記帳</span>
             </button>
             <button onclick="switchTab('tools')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-slate-400 hover:text-deep-sea transition-colors" data-target="tools">
-                <i class="fas fa-th-large text-lg mb-1"></i><span class="text-[10px] font-medium">工具</span>
+                <i class="fas fa-suitcase text-lg mb-1"></i><span class="text-[10px] font-medium">工具</span>
             </button>
         </div>
     </nav>
@@ -646,151 +676,60 @@
 
     <!-- Script -->
     <script>
-        // --- Monorail Stations Data (Consistent Font Size) ---
+        // --- Data & Logic ---
         const stations = [
-            { id: 1, name: "那霸機場", jp: "那覇空港", active: true },
-            { id: 2, name: "赤嶺", jp: "赤嶺", active: false },
-            { id: 3, name: "小祿", jp: "小禄", active: false },
-            { id: 4, name: "奧武山公園", jp: "奥武山公園", active: false },
-            { id: 5, name: "壺川", jp: "壺川", active: false },
-            { id: 6, name: "旭橋", jp: "旭橋", active: true, tag: "住宿" },
-            { id: 7, name: "縣廳前", jp: "県庁前", active: true },
-            { id: 8, name: "美榮橋", jp: "美栄橋", active: false },
-            { id: 9, name: "牧志", jp: "牧志", active: true, tag: "集合點" },
-            { id: 10, name: "安里", jp: "安里", active: false },
-            { id: 11, name: "歌町 (Omoromachi)", jp: "おもろまち", active: true },
-            { id: 12, name: "古島", jp: "古島", active: false },
-            { id: 13, name: "市立醫院前", jp: "市立病院前", active: false },
-            { id: 14, name: "儀保", jp: "儀保", active: true },
-            { id: 15, name: "首里", jp: "首里", active: true },
-            { id: 16, name: "石嶺", jp: "石嶺", active: false },
-            { id: 17, name: "經塚", jp: "経塚", active: false },
-            { id: 18, name: "浦添前田", jp: "浦添前田", active: false },
+            { id: 1, name: "那霸機場", jp: "那覇空港", active: true }, { id: 2, name: "赤嶺", jp: "赤嶺", active: false }, { id: 3, name: "小祿", jp: "小禄", active: false },
+            { id: 4, name: "奧武山公園", jp: "奥武山公園", active: false }, { id: 5, name: "壺川", jp: "壺川", active: false }, { id: 6, name: "旭橋", jp: "旭橋", active: true, tag: "住宿" },
+            { id: 7, name: "縣廳前", jp: "県庁前", active: true }, { id: 8, name: "美榮橋", jp: "美栄橋", active: false }, { id: 9, name: "牧志", jp: "牧志", active: true, tag: "集合點" },
+            { id: 10, name: "安里", jp: "安里", active: false }, { id: 11, name: "歌町", jp: "おもろまち", active: true }, { id: 12, name: "古島", jp: "古島", active: false },
+            { id: 13, name: "市立醫院前", jp: "市立病院前", active: false }, { id: 14, name: "儀保", jp: "儀保", active: true }, { id: 15, name: "首里", jp: "首里", active: true },
+            { id: 16, name: "石嶺", jp: "石嶺", active: false }, { id: 17, name: "經塚", jp: "経塚", active: false }, { id: 18, name: "浦添前田", jp: "浦添前田", active: false },
             { id: 19, name: "日子浦西", jp: "てだこ浦西", active: false }
         ];
 
-        function renderStations() {
-            const container = document.getElementById('monorail-stations');
-            let html = '';
-            stations.forEach(st => {
-                const opacity = st.active ? 'opacity-100' : 'opacity-40 grayscale';
-                const dotClass = st.active ? 'bg-white border-4 border-monorail text-slate-700' : 'bg-white border-4 border-slate-300';
-                
-                html += `
-                    <div class="flex items-center mb-6 relative z-10 ${opacity}">
-                        <div class="${dotClass} w-8 h-8 text-xs rounded-full flex items-center justify-center font-bold transition-all shadow-sm flex-shrink-0">
-                            ${st.id}
-                        </div>
-                        <div class="ml-4 flex-1">
-                            <div class="flex items-center gap-2">
-                                <div class="font-bold text-slate-800 text-sm">${st.name}</div>
-                                ${st.tag ? `<span class="text-[10px] bg-red-100 text-red-600 px-1.5 rounded font-bold">${st.tag}</span>` : ''}
-                            </div>
-                            <div class="text-[10px] text-slate-400 font-mono">${st.jp}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // --- Itinerary Data ---
-        const itineraryData = [
-            {
-                day: 1, date: "2/24 (二)", title: "那霸抵達 & 漫遊", 
-                events: [
-                    { time: "12:30", content: "抵達那霸機場", note: "領行李，搭單軌至旭橋", type: "transport" },
-                    { time: "14:15", content: "Check-in", note: "旭橋托里菲托，放行李", type: "stay" },
-                    { time: "14:30", content: "傑克牛排 Jack's Steak", note: "走路即達，建議點S號", link: "Jack's Steak House", type: "food" },
-                    { time: "15:40", content: "波上宮 & 海灘", note: "拍斷崖神社，步行約10分", link: "Naminoue Shrine", type: "spot" },
-                    { time: "16:40", content: "壺屋通 Yachimun", note: "建議計程車，逛陶藝老街", link: "Tsuboya Yachimun Street", type: "spot" },
-                    { time: "17:30", content: "EIBUN 沖繩麵", note: "人氣文青麵店", link: "Okinawa Soba EIBUN", type: "food" },
-                    { time: "19:00", content: "國際通散步", note: "散步回飯店", type: "walk" }
-                ]
-            },
-            {
-                day: 2, date: "2/25 (三)", title: "北部一日遊", notice: "08:00 牧志公園前集合！",
-                events: [
-                    { time: "08:00", content: "牧志公園前集合", note: "KKday 巴士一日遊", highlight: true, type: "transport" },
-                    { time: "09:20", content: "萬座毛", note: "象鼻岩，停留30分", link: "Manzamo", type: "spot" },
-                    { time: "10:50", content: "古宇利島", note: "心型岩，停留30分", link: "Kouri Island", type: "spot" },
-                    { time: "11:40", content: "美麗海水族館", note: "午餐自理，停留4hr", link: "Okinawa Churaumi Aquarium", type: "spot" },
-                    { time: "13:40", content: "備瀨福木林道", note: "綠色隧道", link: "Bise Fukugi Tree Road", type: "spot" },
-                    { time: "14:40", content: "Cafe CAHAYA BULAN", note: "海景咖啡", link: "Cafe CAHAYA BULAN", type: "food" },
-                    { time: "16:30", content: "美國村 (脫隊)", note: "拿行李下車，不回那霸", highlight: true, link: "American Village Okinawa", type: "spot" },
-                    { time: "19:00", content: "搭公車回那霸", note: "桑江站搭120/28 (約1hr)", type: "transport" },
-                    { time: "20:00", content: "Nagiji 地酒料理", note: "晚餐", link: "Nagiji Okinawa", type: "food" }
-                ]
-            },
-            {
-                day: 3, date: "2/26 (四)", title: "南部 & Outlet", 
-                events: [
-                    { time: "09:30", content: "沖繩世界 (玉泉洞)", note: "旭橋搭54號公車 (8:40發)", link: "Okinawa World", type: "spot" },
-                    { time: "12:00", content: "前往瀨長島", note: "建議計程車約¥4500", highlight: true, type: "transport" },
-                    { time: "12:30", content: "瀨長島 (美食)", note: "幸福鬆餅、鮪魚丼、塔可飯", link: "Umikaji Terrace Senagajima", type: "food" },
-                    { time: "15:00", content: "前往 Outlet", note: "TK02接駁車", type: "transport" },
-                    { time: "15:10", content: "Ashibinaa Outlet", note: "精品", link: "Ashibinaa Outlet", type: "shop" },
-                    { time: "16:10", content: "Sports Depo", note: "體育用品", link: "Sports Depo Toyosaki", type: "shop" },
-                    { time: "17:00", content: "回那霸市區", note: "89號公車", type: "transport" },
-                    { time: "18:30", content: "Shimabutaya", note: "阿古豬炸豬排", link: "Shimabutaya Kumoji", type: "food" }
-                ]
-            },
-            {
-                day: 4, date: "2/27 (五)", title: "甜點與海景", 
-                events: [
-                    { time: "10:00", content: "達磨寺 (西來院)", note: "祈求幸運", link: "Daruma Temple Naha", type: "spot" },
-                    { time: "11:30", content: "港川外人住宅", note: "oHacorte、TangTang、可麗露", link: "Minatogawa Stateside Town", type: "spot" },
-                    { time: "14:00", content: "PARCO CITY", note: "海景百貨，計程車前往", link: "SAN-A Naha Main Place", type: "shop" },
-                    { time: "18:40", content: "燒肉 Buchi", note: "回市區吃燒肉", link: "Yakiniku Buchi Kumoji", type: "food" }
-                ]
-            },
-            {
-                day: 5, date: "2/28 (六)", title: "機場最後衝刺", 
-                events: [
-                    { time: "10:30", content: "那霸機場", note: "國際線3F掛行李", type: "transport" },
-                    { time: "11:10", content: "豬肉蛋飯糰", note: "國內線1F", link: "Pork Tamago Onigiri Naha Airport", type: "food" },
-                    { time: "11:40", content: "伴手禮採購", note: "紅芋塔、蝦餅", type: "shop" },
-                    { time: "13:30", content: "搭機返台 IT289", note: "Safe flight!", highlight: true, type: "transport" }
-                ]
-            }
+        // Itinerary
+        const defaultItineraryData = [
+            { day: 1, date: "2/24 (二)", title: "那霸抵達 & 漫遊", events: [ { time: "12:30", content: "抵達那霸機場", note: "領行李，搭單軌至旭橋", type: "transport" }, { time: "14:15", content: "Check-in", note: "旭橋托里菲托，放行李", type: "stay" }, { time: "14:30", content: "傑克牛排 Jack's Steak", note: "走路即達，建議點S號", link: "Jack's Steak House", type: "food" }, { time: "15:40", content: "波上宮 & 海灘", note: "拍斷崖神社，參拜需二拜二拍手一拜", link: "Naminoue Shrine", type: "spot" }, { time: "16:40", content: "壺屋通 Yachimun", note: "建議計程車，逛陶藝老街", link: "Tsuboya Yachimun Street", type: "spot" }, { time: "17:30", content: "EIBUN 沖繩麵", note: "人氣文青麵店", link: "Okinawa Soba EIBUN", type: "food" }, { time: "19:00", content: "國際通散步", note: "散步回飯店", type: "walk" } ] },
+            { day: 2, date: "2/25 (三)", title: "北部一日遊", notice: "08:00 牧志公園前集合！", events: [ { time: "08:00", content: "牧志公園前集合", note: "KKday 巴士一日遊", highlight: true, type: "transport" }, { time: "09:20", content: "萬座毛", note: "象鼻岩，停留30分", link: "Manzamo", type: "spot" }, { time: "10:50", content: "古宇利島", note: "心型岩，停留30分", link: "Kouri Island", type: "spot" }, { time: "11:40", content: "美麗海水族館", note: "午餐自理，15:00/17:00海豚秀", link: "Okinawa Churaumi Aquarium", type: "spot" }, { time: "13:40", content: "備瀨福木林道", note: "綠色隧道", link: "Bise Fukugi Tree Road", type: "spot" }, { time: "14:40", content: "Cafe CAHAYA BULAN", note: "海景咖啡", link: "Cafe CAHAYA BULAN", type: "food" }, { time: "16:30", content: "美國村 (脫隊)", note: "拿行李下車，不回那霸", highlight: true, link: "American Village Okinawa", type: "spot" }, { time: "19:00", content: "搭公車回那霸", note: "桑江站搭120/28 (約1hr)", type: "transport" }, { time: "20:00", content: "Nagiji 地酒料理", note: "晚餐", link: "Nagiji Okinawa", type: "food" } ] },
+            { day: 3, date: "2/26 (四)", title: "南部 & Outlet", events: [ { time: "08:40", content: "那霸公車總站 (旭橋)", note: "9號月台搭 54 號公車", highlight: true, type: "transport" }, { time: "09:30", content: "沖繩世界 (玉泉洞)", note: "10:30/12:30 EISA太鼓舞", link: "Okinawa World", type: "spot" }, { time: "12:00", content: "前往瀨長島", note: "建議計程車約¥4500", highlight: true, type: "transport" }, { time: "12:30", content: "瀨長島 (美食)", note: "幸福鬆餅、鮪魚丼、塔可飯", link: "Umikaji Terrace Senagajima", type: "food" }, { time: "15:00", content: "前往 Outlet", note: "TK02接駁車", type: "transport" }, { time: "15:10", content: "Ashibinaa Outlet", note: "精品", link: "Ashibinaa Outlet", type: "shop" }, { time: "16:10", content: "Sports Depo", note: "體育用品", link: "Sports Depo Toyosaki", type: "shop" }, { time: "17:00", content: "回那霸市區", note: "搭 89 號公車", type: "transport" }, { time: "18:30", content: "Shimabutaya", note: "阿古豬炸豬排", link: "Shimabutaya Kumoji", type: "food" } ] },
+            { day: 4, date: "2/27 (五)", title: "甜點與海景", events: [ { time: "10:00", content: "達磨寺 (西來院)", note: "祈求幸運，參拜禮儀同神社", link: "Daruma Temple Naha", type: "spot" }, { time: "11:15", content: "移動：往港川", note: "搭計程車 (約15分)", type: "transport" }, { time: "11:30", content: "港川外人住宅", note: "oHacorte、TangTang、可麗露", link: "Minatogawa Stateside Town", type: "spot" }, { time: "13:45", content: "移動：往PARCO", note: "搭計程車 (約10分)", type: "transport" }, { time: "14:00", content: "PARCO CITY", note: "海景百貨，3F 寶可夢中心", link: "SAN-A Naha Main Place", type: "shop" }, { time: "17:00", content: "回那霸市區", note: "搭 32/385 號公車", type: "transport" }, { time: "18:40", content: "燒肉 Buchi", note: "回市區吃燒肉", link: "Yakiniku Buchi Kumoji", type: "food" } ] },
+            { day: 5, date: "2/28 (六)", title: "機場最後衝刺", events: [ { time: "10:30", content: "那霸機場", note: "國際線3F掛行李", type: "transport" }, { time: "11:10", content: "豬肉蛋飯糰", note: "國內線1F", link: "Pork Tamago Onigiri Naha Airport", type: "food" }, { time: "11:40", content: "伴手禮採購", note: "紅芋塔、蝦餅", type: "shop" }, { time: "13:30", content: "搭機返台 IT289", note: "Safe flight!", highlight: true, type: "transport" } ] }
         ];
+        let itineraryData = JSON.parse(localStorage.getItem('okinawa_itinerary')) || defaultItineraryData;
 
-        // --- Deep Guide Data ---
+        // Guide
         const guideData = [
-            { id: 'jack', title: "傑克牛排 (Jack's Steak)", tags: ['food'], type: '美食', icon: 'fa-utensils', color: 'text-red-500', bg: 'bg-red-50', desc: "1953年開業，美軍認證 A Sign 老店。店外紅綠燈號顯示空位。", tips: "必點 Tenderloin Steak (S號)，No.1 醬汁偏酸建議先吃原味。" },
-            { id: 'nami', title: "波上宮", tags: ['spot'], type: '景點', icon: 'fa-torii-gate', color: 'text-orange-500', bg: 'bg-orange-50', desc: "琉球八社之首，建在懸崖上的神社，紅瓦屋頂超美。", tips: "最佳拍攝點在旁邊的波之上橋。" },
+            { id: 'kokusai', title: "國際通 (Kokusai Dori)", tags: ['shop','spot'], type: '購物', icon: 'fa-shopping-cart', color: 'text-pink-600', bg: 'bg-pink-50', desc: "那霸最熱鬧的大街，全長1.6公里，兩旁土產店、藥妝店、餐廳林立。每週日中午是步行者天國。", tips: "推薦去唐吉訶德、Calbee+ 現炸薯條、平和通商店街。", menu: "Calbee+ 現炸薯條, Blue Seal 冰淇淋" },
+            { id: 'souvenirs', title: "必買伴手禮推薦", tags: ['buy','shop'], type: '購物', icon: 'fa-gift', color: 'text-red-500', bg: 'bg-red-50', desc: "1. 御菓子御殿 (紅芋塔)\n2. 雪鹽夾心餅 (宮古島雪鹽)\n3. Fukugiya (年輪蛋糕)\n4. 蝦餅 (南風堂)", tips: "國內線機場 2F 是最後補貨天堂，種類最齊全。" },
+            { id: 'jack', title: "傑克牛排 (Jack's Steak)", tags: ['food'], type: '美食', icon: 'fa-utensils', color: 'text-red-500', bg: 'bg-red-50', desc: "1953年開業老店。店外紅綠燈號顯示空位。", tips: "必點 Tenderloin Steak (S號)，No.1 醬汁偏酸建議先吃原味。", menu: "特選里脊牛排 (Tenderloin), 紐約客牛排, 漢堡排, 塔可飯", reserve: "不可預約 (現場候位，看紅綠燈號)" },
+            { id: 'nami', title: "波上宮", tags: ['spot'], type: '景點', icon: 'fa-torii-gate', color: 'text-orange-500', bg: 'bg-orange-50', desc: "建在懸崖上的神社，紅瓦屋頂超美。參拜前請在手水舍洗手漱口，禮儀為二拜二拍手一拜。", tips: "最佳拍攝點在旁邊的波之上橋人行道。" },
             { id: 'yachimun', title: "壺屋通", tags: ['spot','shop'], type: '景點', icon: 'fa-wine-bottle', color: 'text-amber-600', bg: 'bg-amber-50', desc: "陶藝老街，石板路很有氣氛，適合散步。", tips: "路口大獅子是地標。" },
-            { id: 'eibun', title: "EIBUN 沖繩麵", tags: ['food'], type: '美食', icon: 'fa-bowl-food', color: 'text-yellow-600', bg: 'bg-yellow-50', desc: "文青風格麵店，湯頭清爽層次豐富。", tips: "若排隊太長可去附近的二號店 STAND EIBUN。" },
+            { id: 'eibun', title: "EIBUN 沖繩麵", tags: ['food'], type: '美食', icon: 'fa-bowl-food', color: 'text-yellow-600', bg: 'bg-yellow-50', desc: "文青風格麵店，湯頭清爽層次豐富。", tips: "若排隊太長可去附近的二號店 STAND EIBUN。", menu: "BUNBUN Soba, 特製冷麵, 沖繩麵", reserve: "不可預約 (建議開店前去排/或去二號店)" },
             { id: 'manza', title: "萬座毛", tags: ['spot'], type: '景點', icon: 'fa-water', color: 'text-blue-500', bg: 'bg-blue-50', desc: "象鼻岩懸崖，琉球國王曾讚嘆可坐萬人。", tips: "海風非常大，早上順光。" },
             { id: 'kouri', title: "古宇利島", tags: ['spot'], type: '景點', icon: 'fa-heart', color: 'text-pink-500', bg: 'bg-pink-50', desc: "戀之島，必看雙心型岩與跨海大橋。", tips: "Arashi 廣告拍攝地。" },
-            { id: 'chura', title: "美麗海水族館", tags: ['spot'], type: '景點', icon: 'fa-fish', color: 'text-cyan-500', bg: 'bg-cyan-50', desc: "黑潮之海大水槽，看鯨鯊與鬼蝠魟。", tips: "鯨鯊餵食秀 15:00 / 17:00。" },
-            { id: 'bise', title: "備瀨福木林道", tags: ['spot'], type: '景點', icon: 'fa-tree', color: 'text-green-600', bg: 'bg-green-50', desc: "防風林綠色隧道，光影很美。", tips: "蚊蟲多請噴防蚊液。" },
+            { id: 'chura', title: "美麗海水族館", tags: ['spot'], type: '景點', icon: 'fa-fish', color: 'text-cyan-500', bg: 'bg-cyan-50', desc: "黑潮之海大水槽，看鯨鯊與鬼蝠魟優雅游動。戶外「Okichan Theater」有免費海豚秀，表演時間通常為 10:30 / 11:30 / 13:00 / 15:00 / 17:00。", tips: "鯨鯊餵食秀 15:00 / 17:00。" },
+            { id: 'bise', title: "備瀨福木林道", tags: ['spot'], type: '景點', icon: 'fa-tree', color: 'text-green-600', bg: 'bg-green-50', desc: "防風林綠色隧道，光影很美，但蚊蟲較多請務必噴防蚊液。", tips: "建議租借腳踏車比較輕鬆。" },
+            { id: 'cafe', title: "Cafe CAHAYA BULAN", tags: ['food'], type: '美食', icon: 'fa-coffee', color: 'text-brown-500', bg: 'bg-orange-50', desc: "備瀨地區海景第一排咖啡廳，悠閒看海。", tips: "推薦黑糖戚風蛋糕。", menu: "沖繩控肉丼 (Rafute), 海葡萄丼, 黑糖戚風, 咖啡", reserve: "建議電話預約或現場候位" },
             { id: 'american', title: "美國村", tags: ['spot','shop'], type: '購物', icon: 'fa-star', color: 'text-purple-500', bg: 'bg-purple-50', desc: "美式風格聚落，日落與夜景迷人。", tips: "Magic Hour 夕陽必看。" },
-            { id: 'nagiji', title: "Nagiji (那吉次)", tags: ['food'], type: '美食', icon: 'fa-glass-cheers', color: 'text-indigo-600', bg: 'bg-indigo-50', desc: "在地料理與泡盛，氣氛佳。", tips: "建議預約。" },
-            { id: 'world', title: "沖繩世界 (玉泉洞)", tags: ['spot'], type: '景點', icon: 'fa-dungeon', color: 'text-slate-600', bg: 'bg-slate-100', desc: "日本第二大鐘乳石洞，壯觀涼爽。", tips: "地板濕滑請小心。" },
-            { id: 'senaga', title: "瀨長島", tags: ['spot','food'], type: '景點', icon: 'fa-plane-arrival', color: 'text-sky-500', bg: 'bg-sky-50', desc: "希臘風白色建築，看飛機起降。", tips: "幸福鬆餅、Taco Rice Cafe Kijimuna、親父のまぐろ (鮪魚丼) 必吃。" },
+            { id: 'nagiji', title: "Nagiji (那吉次)", tags: ['food'], type: '美食', icon: 'fa-glass-cheers', color: 'text-indigo-600', bg: 'bg-indigo-50', desc: "在地料理與泡盛，氣氛佳。", tips: "建議預約。", menu: "縣產和牛, 阿古豬涮涮鍋, 山羊刺身, 泡盛", reserve: "建議電話預約 (+81-98-862-1002)" },
+            { id: 'world', title: "沖繩世界 (玉泉洞)", tags: ['spot'], type: '景點', icon: 'fa-dungeon', color: 'text-slate-600', bg: 'bg-slate-100', desc: "日本第二大鐘乳石洞，壯觀涼爽但地面濕滑。園區內有 EISA 太鼓舞表演，時間為 10:30 / 12:30 / 14:30。", tips: "洞內走完約需 30 分鐘，請穿好走的鞋。" },
+            { id: 'senaga', title: "瀨長島 (Umikaji)", tags: ['spot','food'], type: '景點', icon: 'fa-plane-arrival', color: 'text-sky-500', bg: 'bg-sky-50', desc: "希臘風白色建築，看飛機起降。", tips: "幸福鬆餅、Taco Rice Cafe Kijimuna、親父のまぐろ (鮪魚丼) 必吃。", menu: "幸福厚鬆餅, 鮪魚丼 (親父のまぐろ), 塔可飯 (Kijimuna)", reserve: "幸福鬆餅官網兩週前開放預約 / 當日抽整理券" },
             { id: 'outlet', title: "Ashibinaa Outlet", tags: ['shop'], type: '購物', icon: 'fa-shopping-bag', color: 'text-pink-600', bg: 'bg-pink-50', desc: "精品與運動品牌 Outlet。", tips: "先去 Information 拿 Coupon。" },
             { id: 'depo', title: "Sports Depo", tags: ['shop'], type: '購物', icon: 'fa-basketball-ball', color: 'text-blue-600', bg: 'bg-blue-50', desc: "超大體育用品店，就在 Outlet 對面。", tips: "棒球、露營用品很全。" },
-            { id: 'agu', title: "Shimabutaya", tags: ['food'], type: '美食', icon: 'fa-bacon', color: 'text-orange-600', bg: 'bg-orange-50', desc: "阿古豬炸豬排專賣，肉甜多汁。", tips: "沾鹽吃最美味。" },
-            { id: 'daruma', title: "達磨寺", tags: ['spot'], type: '景點', icon: 'fa-vihara', color: 'text-red-600', bg: 'bg-red-50', desc: "祈求幸運與合格的寺廟。", tips: "有很多達磨像。" },
-            { id: 'mina', title: "港川外人住宅", tags: ['spot','food'], type: '美食', icon: 'fa-home', color: 'text-teal-500', bg: 'bg-teal-50', desc: "美軍眷村改建，文青小店聚集。", tips: "oHacorte (18號)、TangTang肉饅、Houki Boshi可麗露、Cocoroar CAFE。" },
-            { id: 'parco', title: "PARCO CITY", tags: ['shop'], type: '購物', icon: 'fa-building', color: 'text-gray-600', bg: 'bg-gray-50', desc: "無敵海景百貨。", tips: "2F 美食街海景座位超棒。" },
-            { id: 'buchi', title: "燒肉 Buchi", tags: ['food'], type: '美食', icon: 'fa-drumstick-bite', color: 'text-red-700', bg: 'bg-red-100', desc: "高品質燒肉，離旭橋近。", tips: "牛舌必點。" },
-            { id: 'onigiri', title: "豬肉蛋飯糰", tags: ['food'], type: '美食', icon: 'fa-rice-cracker', color: 'text-yellow-500', bg: 'bg-yellow-100', desc: "沖繩靈魂美食。", tips: "機場店人多可買炸蝦口味帶上機。" }
+            { id: 'agu', title: "Shimabutaya", tags: ['food'], type: '美食', icon: 'fa-bacon', color: 'text-orange-600', bg: 'bg-orange-50', desc: "阿古豬炸豬排專賣，肉甜多汁。", tips: "沾鹽吃最能引出豬肉甜味。", menu: "特上阿古豬厚切炸豬排, 涮涮鍋", reserve: "可透過官網/Google Maps 預訂" },
+            { id: 'daruma', title: "達磨寺", tags: ['spot'], type: '景點', icon: 'fa-vihara', color: 'text-red-600', bg: 'bg-red-50', desc: "祈求幸運與合格的寺廟，有許多紅色達磨像。參拜方式與一般佛寺相同，雙手合十祈禱（不用拍手）。", tips: "可以買個小達磨回家許願。" },
+            { id: 'mina', title: "港川外人住宅", tags: ['spot','food'], type: '美食', icon: 'fa-home', color: 'text-teal-500', bg: 'bg-teal-50', desc: "美軍眷村改建，文青小店聚集。", tips: "oHacorte (18號)、TangTang肉饅、Houki Boshi可麗露、Cocoroar CAFE。", menu: "當季水果塔 (oHacorte), 檸檬蛋糕", reserve: "oHacorte 外帶為主 (內用座位少)" },
+            { id: 'parco', title: "PARCO CITY", tags: ['shop'], type: '購物', icon: 'fa-building', color: 'text-gray-600', bg: 'bg-gray-50', desc: "無敵海景百貨，2019年開幕。", tips: "2F 美食街海景座位超棒，3F 有寶可夢中心。" },
+            { id: 'buchi', title: "燒肉 Buchi", tags: ['food'], type: '美食', icon: 'fa-drumstick-bite', color: 'text-red-700', bg: 'bg-red-100', desc: "高品質燒肉，離旭橋近。", tips: "牛舌必點。", menu: "厚切牛舌, 橫膈膜, 嚴選赤身", reserve: "建議 HotPepper 網路預約" },
+            { id: 'onigiri', title: "豬肉蛋飯糰", tags: ['food'], type: '美食', icon: 'fa-rice-cracker', color: 'text-yellow-500', bg: 'bg-yellow-100', desc: "沖繩靈魂美食。", tips: "機場店人多可買炸蝦口味帶上機。", menu: "炸蝦豬肉蛋, 明太子豬肉蛋, 原味餐肉蛋", reserve: "現場排隊" }
         ];
 
-        // --- Functions ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(el => {
-                if(el.dataset.target === tabId) {
-                    el.classList.add('text-deep-sea', 'bg-slate-50');
-                    el.classList.remove('text-slate-400');
-                } else {
-                    el.classList.remove('text-deep-sea', 'bg-slate-50');
-                    el.classList.add('text-slate-400');
-                }
+                if(el.dataset.target === tabId) { el.classList.add('text-deep-sea', 'bg-slate-50'); el.classList.remove('text-slate-400'); }
+                else { el.classList.remove('text-deep-sea', 'bg-slate-50'); el.classList.add('text-slate-400'); }
             });
             window.scrollTo(0, 0);
         }
@@ -827,28 +766,42 @@
         function renderItinerary() {
             const container = document.getElementById('itinerary-container');
             let html = '';
-            itineraryData.forEach(day => {
+            itineraryData.forEach((day, dayIdx) => {
                 let eventsHtml = '';
-                day.events.forEach(event => {
+                day.events.forEach((event, evtIdx) => {
                     const highlightClass = event.highlight ? 'bg-orange-50 border-orange-200' : 'bg-white border-slate-100';
                     const timeColor = event.highlight ? 'text-sunset font-bold' : 'text-slate-400';
                     const icon = getIconByType(event.type);
+                    
+                    // Move Buttons Logic
+                    const isFirst = evtIdx === 0;
+                    const isLast = evtIdx === day.events.length - 1;
+                    const upBtn = isFirst ? '' : `<button onclick="moveEvent(event, ${dayIdx}, ${evtIdx}, -1)" class="p-1 text-slate-300 hover:text-ocean"><i class="fas fa-chevron-up"></i></button>`;
+                    const downBtn = isLast ? '' : `<button onclick="moveEvent(event, ${dayIdx}, ${evtIdx}, 1)" class="p-1 text-slate-300 hover:text-ocean"><i class="fas fa-chevron-down"></i></button>`;
+
                     let linkHtml = '';
                     if(event.link) {
                         const query = encodeURIComponent(event.link);
                         linkHtml = `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" class="ml-2 text-ocean w-6 h-6 flex items-center justify-center"><i class="fas fa-location-arrow"></i></a>`;
                     }
+                    
                     eventsHtml += `
-                        <div class="flex relative pb-6 last:pb-0">
+                        <div class="flex relative pb-6 last:pb-0 group" onclick="openEditModal(${dayIdx}, ${evtIdx})">
                             <div class="flex-shrink-0 w-12 text-xs font-mono font-medium ${timeColor} pt-1.5">${event.time}</div>
                             <div class="flex-grow pl-4 border-l-2 border-slate-200 relative">
                                 <div class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full ${event.highlight ? 'bg-sunset ring-2 ring-orange-100' : 'bg-slate-300'}"></div>
-                                <div class="p-3 rounded-xl border shadow-sm ${highlightClass}">
-                                    <div class="font-bold text-slate-700 flex justify-between items-start text-sm">
-                                        <span class="flex-1 leading-tight">${icon} ${event.content}</span>
-                                        ${linkHtml}
+                                <div class="p-3 rounded-xl border shadow-sm ${highlightClass} active:scale-95 transition-transform cursor-pointer flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div class="font-bold text-slate-700 flex items-center text-sm">
+                                            <span class="flex-1">${icon} ${event.content}</span>
+                                            ${linkHtml}
+                                        </div>
+                                        <div class="text-xs text-slate-500 mt-1.5 leading-relaxed">${event.note || ''}</div>
                                     </div>
-                                    <div class="text-xs text-slate-500 mt-1.5 leading-relaxed">${event.note}</div>
+                                    <div class="flex flex-col ml-2 border-l border-slate-100 pl-1" onclick="event.stopPropagation()">
+                                        ${upBtn}
+                                        ${downBtn}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -862,22 +815,114 @@
                         </div>
                         ${day.notice ? `<div class="bg-yellow-50 text-yellow-700 text-xs p-3 rounded-lg mb-4 flex items-start border border-yellow-100"><i class="fas fa-bullhorn mr-2 mt-0.5"></i> <span>${day.notice}</span></div>` : ''}
                         <div class="space-y-1">${eventsHtml}</div>
+                        <button onclick="openAddModal(${dayIdx})" class="w-full mt-4 text-xs text-slate-400 border border-dashed border-slate-300 rounded p-2 hover:bg-slate-50"><i class="fas fa-plus mr-1"></i> 新增行程</button>
                     </div>
                 `;
             });
             container.innerHTML = html;
         }
 
+        function moveEvent(e, dayIdx, evtIdx, direction) {
+            e.stopPropagation();
+            const events = itineraryData[dayIdx].events;
+            const targetIdx = evtIdx + direction;
+            if (targetIdx >= 0 && targetIdx < events.length) {
+                // Swap
+                const temp = events[evtIdx];
+                events[evtIdx] = events[targetIdx];
+                events[targetIdx] = temp;
+                
+                // Swap times to keep logic consistent? Or keep times attached to slots? 
+                // Usually user wants to move "Lunch" to later, so we should SWAP TIMES too or just let them re-edit time.
+                // For simplicity, we just swap the objects fully.
+                // But better UX: swap times so the schedule stays chronological?
+                // Let's swap the times for them automatically
+                const tempTime = events[evtIdx].time;
+                events[evtIdx].time = events[targetIdx].time;
+                events[targetIdx].time = tempTime;
+
+                localStorage.setItem('okinawa_itinerary', JSON.stringify(itineraryData));
+                renderItinerary();
+            }
+        }
+
+        // --- Other Logic (Same as before) ---
+        let currentDayIdx = -1;
+        let currentEventIdx = -1;
+        
+        function openEditModal(dayIdx, evtIdx) {
+            currentDayIdx = dayIdx;
+            currentEventIdx = evtIdx;
+            const event = itineraryData[dayIdx].events[evtIdx];
+            document.getElementById('modal-title').innerText = "編輯行程";
+            document.getElementById('event-time').value = event.time;
+            document.getElementById('event-content').value = event.content;
+            document.getElementById('event-note').value = event.note || '';
+            document.getElementById('event-type').value = event.type || 'spot';
+            document.getElementById('btn-delete').classList.remove('hidden');
+            document.getElementById('event-modal').classList.add('show');
+        }
+        function openAddModal(dayIdx) {
+            currentDayIdx = dayIdx;
+            currentEventIdx = -1;
+            document.getElementById('modal-title').innerText = "新增行程";
+            document.getElementById('event-time').value = "";
+            document.getElementById('event-content').value = "";
+            document.getElementById('event-note').value = "";
+            document.getElementById('event-type').value = 'spot';
+            document.getElementById('btn-delete').classList.add('hidden');
+            document.getElementById('event-modal').classList.add('show');
+        }
+        function closeModal() { document.getElementById('event-modal').classList.remove('show'); }
+        function saveEvent() {
+            const time = document.getElementById('event-time').value;
+            const content = document.getElementById('event-content').value;
+            const note = document.getElementById('event-note').value;
+            const type = document.getElementById('event-type').value;
+            if (currentEventIdx === -1) {
+                itineraryData[currentDayIdx].events.push({ time, content, note, type });
+                itineraryData[currentDayIdx].events.sort((a,b) => a.time.localeCompare(b.time));
+            } else {
+                itineraryData[currentDayIdx].events[currentEventIdx] = { ...itineraryData[currentDayIdx].events[currentEventIdx], time, content, note, type };
+                itineraryData[currentDayIdx].events.sort((a,b) => a.time.localeCompare(b.time));
+            }
+            localStorage.setItem('okinawa_itinerary', JSON.stringify(itineraryData));
+            renderItinerary();
+            closeModal();
+        }
+        function deleteEventConfirm() {
+            if(confirm("確定刪除此行程？")) {
+                itineraryData[currentDayIdx].events.splice(currentEventIdx, 1);
+                localStorage.setItem('okinawa_itinerary', JSON.stringify(itineraryData));
+                renderItinerary();
+                closeModal();
+            }
+        }
         function getIconByType(type) {
             const map = { transport: '<i class="fas fa-bus text-slate-400 mr-1"></i>', food: '<i class="fas fa-utensils text-yellow-500 mr-1"></i>', spot: '<i class="fas fa-camera text-ocean mr-1"></i>', stay: '<i class="fas fa-bed text-purple-500 mr-1"></i>', shop: '<i class="fas fa-shopping-bag text-pink-500 mr-1"></i>', walk: '<i class="fas fa-walking text-green-500 mr-1"></i>' };
             return map[type] || '';
         }
 
+        // Guide
         function renderGuide(filter = 'all') {
             const container = document.getElementById('guide-container');
             let html = '';
             const filteredData = filter === 'all' ? guideData : guideData.filter(item => item.tags.includes(filter));
             filteredData.forEach(item => {
+                let extraInfo = '';
+                if (item.menu) {
+                    extraInfo += `<div class="mt-2 pt-2 border-t border-slate-100 text-xs text-slate-600"><span class="font-bold text-slate-700">🍽️ 推薦：</span>${item.menu}</div>`;
+                }
+                if (item.reserve) {
+                    let reserveContent = item.reserve;
+                    if (reserveContent.includes('http')) {
+                         // Simple regex to linkify or just manual HTML in data?
+                         // Let's put manual HTML in data or just text for simplicity, or a generic "Link" button if needed.
+                         // User asked for "Reservation Method/URL".
+                    }
+                    extraInfo += `<div class="mt-1 text-xs text-slate-600"><span class="font-bold text-slate-700">📅 預約：</span>${item.reserve}</div>`;
+                }
+
                 html += `
                     <div class="bg-white rounded-2xl shadow-sm p-4 border border-slate-100 flex gap-4 items-start">
                         <div class="${item.bg} ${item.color} w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-lg shadow-sm">
@@ -888,20 +933,20 @@
                                 <h3 class="font-bold text-slate-800 text-sm">${item.title}</h3>
                                 <span class="text-[10px] text-slate-400 border px-1 rounded">${item.type}</span>
                             </div>
-                            <p class="text-xs text-slate-600 mb-2 leading-relaxed text-justify">${item.desc}</p>
+                            <p class="text-xs text-slate-600 mb-2 leading-relaxed text-justify whitespace-pre-line">${item.desc}</p>
                             <div class="text-[10px] bg-slate-50 text-slate-500 p-2 rounded-lg border border-slate-100">
                                 <i class="fas fa-lightbulb text-yellow-400 mr-1"></i> ${item.tips}
                             </div>
+                            ${extraInfo}
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
         }
-
         function filterGuide(type) {
             document.querySelectorAll('.guide-filter').forEach(btn => {
-                const isActive = btn.innerText === (type === 'all' ? '全部' : (type === 'food' ? '在地美食' : (type === 'spot' ? '必訪景點' : '購物血拼')));
+                const isActive = (btn.innerText === '全部' && type === 'all') || (btn.innerText === '在地美食' && type === 'food') || (btn.innerText === '必訪景點' && type === 'spot') || (btn.innerText === '購物血拼' && type === 'shop') || (btn.innerText === '必買伴手禮' && type === 'buy');
                 btn.className = isActive ? 'guide-filter active px-4 py-1.5 rounded-full text-sm font-medium bg-deep-sea text-white shadow-sm whitespace-nowrap transition-all' : 'guide-filter px-4 py-1.5 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 whitespace-nowrap transition-all';
             });
             renderGuide(type);
@@ -911,35 +956,44 @@
         let expenses = JSON.parse(localStorage.getItem('okinawa_expenses')) || [];
         let totalBudget = parseFloat(localStorage.getItem('okinawa_budget')) || 150000;
 
-        // FIXED: Toggle Input instead of Prompt
         function toggleBudgetInput() {
             const box = document.getElementById('budget-input-box');
             box.classList.toggle('hidden');
-            if(!box.classList.contains('hidden')) {
-                document.getElementById('new-budget-input').value = totalBudget;
-                document.getElementById('new-budget-input').focus();
-            }
+            if(!box.classList.contains('hidden')) { document.getElementById('new-budget-input').value = totalBudget; document.getElementById('new-budget-input').focus(); }
         }
-
         function saveNewBudget() {
-            const input = document.getElementById('new-budget-input');
-            const val = parseFloat(input.value);
-            if(!isNaN(val) && val > 0) {
-                totalBudget = val;
-                localStorage.setItem('okinawa_budget', totalBudget);
-                renderExpenses();
-                toggleBudgetInput(); // Hide the input box
-            } else {
-                alert("請輸入有效的金額");
-            }
+            const val = parseFloat(document.getElementById('new-budget-input').value);
+            if(!isNaN(val) && val > 0) { totalBudget = val; localStorage.setItem('okinawa_budget', totalBudget); renderExpenses(); toggleBudgetInput(); }
+            else { alert("請輸入有效金額"); }
         }
-
+        function updateCurrencyLabel() {
+            const dir = document.getElementById('currency-direction').value;
+            const input = document.getElementById('calc-input');
+            input.placeholder = dir === 'jpy_to_twd' ? '輸入日幣' : '輸入台幣';
+            calculateCurrency();
+        }
+        function calculateCurrency() {
+            const dir = document.getElementById('currency-direction').value;
+            const input = document.getElementById('calc-input').value;
+            const rate = parseFloat(document.getElementById('rate-input').value);
+            try {
+                const val = eval(input);
+                if (dir === 'jpy_to_twd') {
+                    const twd = Math.round(val * rate);
+                    document.getElementById('calc-result').innerText = `¥${val} ≈ NT$${twd}`;
+                } else {
+                    const jpy = Math.round(val / rate);
+                    document.getElementById('calc-result').innerText = `NT$${val} ≈ ¥${jpy}`;
+                }
+            } catch (e) {}
+        }
         function addExpense() {
             const item = document.getElementById('expense-item').value;
             const amount = document.getElementById('expense-amount').value;
             const payer = document.getElementById('expense-payer').value;
-            if(!item || !amount) { alert("請輸入項目與金額"); return; }
-            expenses.unshift({ id: Date.now(), item, amount: parseFloat(amount), payer, date: new Date().toLocaleDateString(undefined, {month:'numeric', day:'numeric'}) });
+            const category = document.getElementById('expense-category').value;
+            if(!item || !amount) { alert("請輸入完整"); return; }
+            expenses.unshift({ id: Date.now(), item, amount: parseFloat(amount), payer, category, date: new Date().toLocaleDateString(undefined, {month:'numeric', day:'numeric'}) });
             localStorage.setItem('okinawa_expenses', JSON.stringify(expenses));
             document.getElementById('expense-item').value = '';
             document.getElementById('expense-amount').value = '';
@@ -948,108 +1002,85 @@
             toast.classList.remove('opacity-0', 'translate-y-4');
             setTimeout(() => toast.classList.add('opacity-0', 'translate-y-4'), 2000);
         }
-        
-        function getExpenseIcon(name) {
-            // Simple keyword matching
-            if (name.includes('麵') || name.includes('飯') || name.includes('餐') || name.includes('食') || name.includes('肉') || name.includes('酒') || name.includes('咖啡')) return '<i class="fas fa-utensils"></i>';
-            if (name.includes('車') || name.includes('票') || name.includes('卡')) return '<i class="fas fa-bus"></i>';
-            if (name.includes('門票') || name.includes('館')) return '<i class="fas fa-ticket-alt"></i>';
-            if (name.includes('藥') || name.includes('妝')) return '<i class="fas fa-pump-soap"></i>';
-            if (name.includes('衣') || name.includes('鞋') || name.includes('包')) return '<i class="fas fa-tshirt"></i>';
-            return '<i class="fas fa-shopping-bag"></i>';
+        function getExpenseIcon(category) {
+            const map = { '食': '<i class="fas fa-utensils"></i>', '衣': '<i class="fas fa-tshirt"></i>', '住': '<i class="fas fa-bed"></i>', '行': '<i class="fas fa-bus"></i>', '育': '<i class="fas fa-book"></i>', '樂': '<i class="fas fa-smile"></i>', '伴': '<i class="fas fa-gift"></i>', '藥': '<i class="fas fa-pills"></i>', '其': '<i class="fas fa-comment-dots"></i>' };
+            return map[category] || '<i class="fas fa-shopping-bag"></i>';
         }
-
         function renderExpenses() {
             const container = document.getElementById('expense-list');
-            const rate = parseFloat(document.getElementById('exchange-rate').value);
+            const rate = parseFloat(document.getElementById('rate-input').value);
             let totalJPY = 0;
             let html = '';
             expenses.forEach(exp => {
                 totalJPY += exp.amount;
                 const twd = Math.round(exp.amount * rate);
-                let payerColor = exp.payer === '公費' ? 'bg-purple-100 text-purple-600' : (exp.payer === '自己' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500');
-                const icon = getExpenseIcon(exp.item);
-                
-                html += `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-ocean flex items-center justify-between group transition-all active:scale-[0.98]">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-lg">
-                                ${icon}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-700 text-sm">${exp.item}</h4>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full ${payerColor}">${exp.payer}</span>
-                                    <span class="text-[10px] text-slate-400">${exp.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <div class="font-mono font-bold text-lg text-slate-800">¥${exp.amount.toLocaleString()}</div>
-                                <div class="text-[10px] text-slate-400">≈ NT$${twd.toLocaleString()}</div>
-                            </div>
-                            <button onclick="deleteExpense(${exp.id})" class="text-slate-300 hover:text-red-400 px-2 transition-colors"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </div>
-                `;
+                const icon = getExpenseIcon(exp.category);
+                html += `<div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-ocean flex items-center justify-between group"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-lg">${icon}</div><div><h4 class="font-bold text-slate-700 text-sm">${exp.item}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">${exp.payer}</span><span class="text-[10px] text-slate-400">${exp.date}</span></div></div></div><div class="flex items-center gap-3"><div class="text-right"><div class="font-mono font-bold text-lg text-slate-800">¥${exp.amount.toLocaleString()}</div><div class="text-[10px] text-slate-400">≈ NT$${twd.toLocaleString()}</div></div><button onclick="deleteExpense(${exp.id})" class="text-slate-300 hover:text-red-400 px-2"><i class="fas fa-trash-alt"></i></button></div></div>`;
             });
-            if(expenses.length === 0) html = '<div class="text-center text-slate-400 py-10 text-sm border border-dashed rounded-xl bg-slate-50">尚未有消費紀錄</div>';
+            if(expenses.length === 0) html = '<div class="text-center text-slate-400 py-10 text-sm border border-dashed rounded-xl bg-slate-50">尚無紀錄</div>';
             container.innerHTML = html;
             document.getElementById('total-spent-jpy').innerText = totalJPY.toLocaleString();
             document.getElementById('budget-left').innerText = (totalBudget - totalJPY).toLocaleString();
             document.getElementById('budget-bar').style.width = `${Math.min(100, (totalJPY / totalBudget) * 100)}%`;
         }
-        
         function deleteExpense(id) {
-            if(confirm("確定刪除此筆消費？")) {
-                expenses = expenses.filter(e => e.id !== id);
-                localStorage.setItem('okinawa_expenses', JSON.stringify(expenses));
-                renderExpenses();
-            }
+            if(confirm("刪除此筆?")) { expenses = expenses.filter(e => e.id !== id); localStorage.setItem('okinawa_expenses', JSON.stringify(expenses)); renderExpenses(); }
         }
-
-        function calculateCurrency() {
-            const input = document.getElementById('calc-input').value;
-            const rate = parseFloat(document.getElementById('exchange-rate').value);
-            try {
-                const jpy = eval(input);
-                const twd = Math.round(jpy * rate);
-                const el = document.getElementById('calc-result');
-                el.innerText = `= ¥${jpy} ≈ NT$${twd}`;
-                el.classList.remove('opacity-0');
-            } catch (e) {}
-        }
-        
-        // Tax Free Calc (Japan 10%)
         function calcTax() {
             const price = parseFloat(document.getElementById('tax-input').value);
             if (!isNaN(price)) {
-                // Formula: Price / 1.1 = Net Price. Refund = Price - Net.
-                const netPrice = price / 1.1;
-                const refund = Math.floor(price - netPrice); // Floor or Round depending on shop policy, usually drop fractions.
-                const finalPrice = Math.ceil(netPrice);
-                
-                document.getElementById('refund-amount').innerText = refund.toLocaleString();
-                document.getElementById('tax-result').innerText = finalPrice.toLocaleString();
-            } else {
-                document.getElementById('refund-amount').innerText = "0";
-                document.getElementById('tax-result').innerText = "0";
+                const net = price / 1.1;
+                document.getElementById('refund-amount').innerText = Math.floor(price - net).toLocaleString();
+                document.getElementById('tax-result').innerText = Math.ceil(net).toLocaleString();
             }
         }
 
-        function copyAddress() {
-            navigator.clipboard.writeText("〒900-0021 沖縄県那覇市泉崎1-11-19");
-            alert("地址已複製");
+        // Tools
+        function switchPhraseTab(category) {
+            document.querySelectorAll('.phrase-group').forEach(el => el.classList.remove('active'));
+            document.getElementById(`phrases-${category}`).classList.add('active');
+            ['basic','dining','shopping','traffic'].forEach(t => document.getElementById(`tab-${t}`).className = t===category ? "flex-1 py-2 font-bold text-indigo-600 border-b-2 border-indigo-500 bg-white" : "flex-1 py-2 text-slate-500 border-b-2 border-transparent hover:text-slate-700");
+        }
+        function speakJapanese(text) {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'ja-JP';
+                window.speechSynthesis.speak(msg);
+            } else { alert("裝置不支援"); }
+        }
+        function copyAddress() { navigator.clipboard.writeText("〒900-0021 沖縄県那覇市泉崎1-11-19"); alert("地址已複製"); }
+        
+        // Checklist
+        const checklistItems = ["身分證","護照 (>6個月)","簽證/駕照","學生證","登機證","網卡/Wifi","錢包 (日幣/卡)","充電線","行動電源","轉接頭 (兩腳扁)","耳機","防曬乳","藥品 (感冒/胃/暈車)","雨具","水壺"];
+        function initChecklist() {
+            const savedChecks = JSON.parse(localStorage.getItem('okinawa_checklist')) || {};
+            const container = document.getElementById('checklist-items');
+            let html = '';
+            checklistItems.forEach((item, index) => {
+                const isChecked = savedChecks[index] ? 'checked' : '';
+                html += `<label class="flex items-center p-2 rounded hover:bg-green-50 cursor-pointer"><input type="checkbox" class="form-checkbox h-4 w-4 text-green-600 rounded" onchange="toggleCheck(${index})" ${isChecked}><span class="ml-3 text-sm text-slate-700 ${isChecked?'line-through opacity-50':''}">${item}</span></label>`;
+            });
+            container.innerHTML = html;
+            updateCheckProgress(savedChecks);
+        }
+        function toggleCheck(index) {
+            const savedChecks = JSON.parse(localStorage.getItem('okinawa_checklist')) || {};
+            savedChecks[index] = !savedChecks[index];
+            localStorage.setItem('okinawa_checklist', JSON.stringify(savedChecks));
+            initChecklist();
+        }
+        function updateCheckProgress(checks) {
+            const total = checklistItems.length;
+            const checked = Object.values(checks).filter(Boolean).length;
+            document.getElementById('checklist-progress').innerText = `${Math.round((checked/total)*100)}%`;
         }
 
-        // Tools
         const memoArea = document.getElementById('memo-area');
         memoArea.value = localStorage.getItem('okinawa_memo') || '';
         memoArea.addEventListener('input', function() { localStorage.setItem('okinawa_memo', this.value); });
         
         function exportData() {
-            const data = { expenses, memo: memoArea.value, budget: totalBudget };
+            const data = { expenses, memo: memoArea.value, budget: totalBudget, itinerary: itineraryData, checklist: JSON.parse(localStorage.getItem('okinawa_checklist')) };
             const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = "okinawa2026_backup.json"; a.click();
@@ -1064,16 +1095,27 @@
                     if(data.expenses) localStorage.setItem('okinawa_expenses', JSON.stringify(data.expenses));
                     if(data.memo) localStorage.setItem('okinawa_memo', data.memo);
                     if(data.budget) localStorage.setItem('okinawa_budget', data.budget);
+                    if(data.itinerary) localStorage.setItem('okinawa_itinerary', JSON.stringify(data.itinerary));
+                    if(data.checklist) localStorage.setItem('okinawa_checklist', JSON.stringify(data.checklist));
                     location.reload();
                 } catch(err) { alert("格式錯誤"); }
             };
             reader.readAsText(file);
         }
 
-        // Init
+        function renderStations() {
+            const container = document.getElementById('monorail-stations');
+            let html = '';
+            stations.forEach(st => {
+                const opacity = st.active ? 'opacity-100' : 'opacity-40 grayscale';
+                const dotClass = st.active ? 'bg-white border-4 border-monorail text-slate-700' : 'bg-white border-4 border-slate-300';
+                html += `<div class="flex items-center mb-6 relative z-10 ${opacity}"><div class="${dotClass} w-8 h-8 text-xs rounded-full flex items-center justify-center font-bold transition-all shadow-sm flex-shrink-0">${st.id}</div><div class="ml-4 flex-1"><div class="flex items-center gap-2"><div class="font-bold text-slate-800 text-sm">${st.name}</div>${st.tag ? `<span class="text-[10px] bg-red-100 text-red-600 px-1.5 rounded font-bold">${st.tag}</span>` : ''}</div><div class="text-[10px] text-slate-400 font-mono">${st.jp}</div></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
         window.onload = function() {
-            renderStations(); renderItinerary(); renderGuide('all'); renderExpenses();
-            // Countdown
+            renderStations(); renderItinerary(); renderGuide('all'); renderExpenses(); initChecklist();
             const tripDate = new Date('2026-02-24T00:00:00').getTime();
             const now = new Date().getTime();
             const diff = Math.ceil((tripDate - now) / (1000 * 60 * 60 * 24));

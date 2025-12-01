@@ -1029,9 +1029,11 @@
         function calcTax() {
             const price = parseFloat(document.getElementById('tax-input').value);
             if (!isNaN(price)) {
-                const net = price / 1.1;
-                document.getElementById('refund-amount').innerText = Math.floor(price - net).toLocaleString();
-                document.getElementById('tax-result').innerText = Math.ceil(net).toLocaleString();
+                const net = Math.round(price / 1.1); 
+                const refund = price - net;
+                
+                document.getElementById('refund-amount').innerText = refund.toLocaleString();
+                document.getElementById('tax-result').innerText = net.toLocaleString();
             }
         }
 

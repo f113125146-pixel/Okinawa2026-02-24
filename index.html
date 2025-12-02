@@ -388,7 +388,7 @@
         <section id="wallet" class="tab-content">
             <h2 class="text-2xl font-bold text-deep-sea mb-4">記帳 & 匯率</h2>
             
-            <!-- Exchange & Tax Tool (Fixed Logic) -->
+            <!-- Exchange & Tax Tool -->
             <div class="grid grid-cols-1 gap-3 mb-4">
                 <!-- Live Rate & Currency Swap -->
                 <div class="bg-slate-800 text-white p-4 rounded-xl shadow-sm">
@@ -397,14 +397,11 @@
                         <a href="https://www.google.com/finance/quote/JPY-TWD" target="_blank" class="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded text-white transition-colors">查詢即時匯率 <i class="fas fa-external-link-alt ml-1"></i></a>
                     </div>
                     <div class="flex items-center gap-2 mb-2">
-                        <select id="currency-direction" class="bg-slate-700 text-white text-xs p-1 rounded border-none outline-none" onchange="updateCurrencyLabel()">
-                            <option value="jpy_to_twd">JPY ➝ TWD</option>
-                            <option value="twd_to_jpy">TWD ➝ JPY</option>
-                        </select>
+                        <span class="text-xs font-bold text-white bg-slate-600 px-2 py-1 rounded">JPY ➝ TWD</span>
                         <input type="number" id="rate-input" value="0.215" class="w-16 bg-transparent text-right font-bold text-white outline-none border-b border-slate-500 focus:border-ocean" step="0.001" oninput="calculateCurrency()">
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="calc-input" placeholder="輸入金額" class="flex-1 bg-slate-700 border-none rounded px-3 py-2 text-lg text-white outline-none font-mono placeholder-slate-500" oninput="calculateCurrency()">
+                        <input type="text" id="calc-input" placeholder="輸入日幣金額" class="flex-1 bg-slate-700 border-none rounded px-3 py-2 text-lg text-white outline-none font-mono placeholder-slate-500" oninput="calculateCurrency()">
                     </div>
                     <div id="calc-result" class="text-right text-lg font-bold text-yellow-400 font-mono mt-2 h-6">¥0 ≈ NT$0</div>
                 </div>
@@ -676,7 +673,7 @@
 
     <!-- Script -->
     <script>
-        // --- Data & Logic ---
+        // --- Monorail Stations Data (Consistent Font Size) ---
         const stations = [
             { id: 1, name: "那霸機場", jp: "那覇空港", active: true }, { id: 2, name: "赤嶺", jp: "赤嶺", active: false }, { id: 3, name: "小祿", jp: "小禄", active: false },
             { id: 4, name: "奧武山公園", jp: "奥武山公園", active: false }, { id: 5, name: "壺川", jp: "壺川", active: false }, { id: 6, name: "旭橋", jp: "旭橋", active: true, tag: "住宿" },
@@ -687,20 +684,45 @@
             { id: 19, name: "日子浦西", jp: "てだこ浦西", active: false }
         ];
 
-        // Itinerary
+        function renderStations() {
+            const container = document.getElementById('monorail-stations');
+            let html = '';
+            stations.forEach(st => {
+                const opacity = st.active ? 'opacity-100' : 'opacity-40 grayscale';
+                const dotClass = st.active ? 'bg-white border-4 border-monorail text-slate-700' : 'bg-white border-4 border-slate-300';
+                
+                html += `
+                    <div class="flex items-center mb-6 relative z-10 ${opacity}">
+                        <div class="${dotClass} w-8 h-8 text-xs rounded-full flex items-center justify-center font-bold transition-all shadow-sm flex-shrink-0">
+                            ${st.id}
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex items-center gap-2">
+                                <div class="font-bold text-slate-800 text-sm">${st.name}</div>
+                                ${st.tag ? `<span class="text-[10px] bg-red-100 text-red-600 px-1.5 rounded font-bold">${st.tag}</span>` : ''}
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-mono">${st.jp}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- Itinerary Data ---
         const defaultItineraryData = [
             { day: 1, date: "2/24 (二)", title: "那霸抵達 & 漫遊", events: [ { time: "12:30", content: "抵達那霸機場", note: "領行李，搭單軌至旭橋", type: "transport" }, { time: "14:15", content: "Check-in", note: "旭橋托里菲托，放行李", type: "stay" }, { time: "14:30", content: "傑克牛排 Jack's Steak", note: "走路即達，建議點S號", link: "Jack's Steak House", type: "food" }, { time: "15:40", content: "波上宮 & 海灘", note: "拍斷崖神社，參拜需二拜二拍手一拜", link: "Naminoue Shrine", type: "spot" }, { time: "16:30", content: "牧志公設市場", note: "搭計程車前往(約¥800)，逛市場吃小吃", link: "Makishi Public Market", type: "spot" }, { time: "17:10", content: "壺屋通 Yachimun", note: "步行即達，逛陶藝老街", link: "Tsuboya Yachimun Street", type: "spot" }, { time: "17:50", content: "Yamaka Stand", note: "壺屋通旁，喝杯飲料小憩", link: "Yamaka Stand", type: "food" }, { time: "18:30", content: "EIBUN 沖繩麵", note: "人氣文青麵店", link: "Okinawa Soba EIBUN", type: "food" }, { time: "19:30", content: "國際通散步", note: "散步回飯店", type: "walk" } ] },
             { day: 2, date: "2/25 (三)", title: "北部一日遊", notice: "08:00 牧志公園前集合！", events: [ { time: "08:00", content: "牧志公園前集合", note: "KKday 巴士一日遊", highlight: true, type: "transport" }, { time: "09:20", content: "萬座毛", note: "象鼻岩，停留30分", link: "Manzamo", type: "spot" }, { time: "10:50", content: "古宇利島", note: "心型岩，停留30分", link: "Kouri Island", type: "spot" }, { time: "11:40", content: "美麗海水族館", note: "午餐自理，停留約4小時，有海豚秀表演 / 鯨鯊餵食秀", link: "Okinawa Churaumi Aquarium", type: "spot" }, { time: "13:40", content: "備瀨福木林道", note: "綠色隧道", link: "Bise Fukugi Tree Road", type: "spot" }, { time: "14:40", content: "Cafe CAHAYA BULAN", note: "海景咖啡", link: "Cafe CAHAYA BULAN", type: "food" }, { time: "16:30", content: "美國村 (脫隊)", note: "拿行李下車，不回那霸", highlight: true, link: "American Village Okinawa", type: "spot" }, { time: "19:00", content: "搭公車回那霸", note: "桑江站搭120/28 (約1hr)", type: "transport" }, { time: "20:00", content: "Nagiji 地酒料理", note: "晚餐", link: "Nagiji Okinawa", type: "food" } ] },
             { day: 3, date: "2/26 (四)", title: "南部 & Outlet", events: [ { time: "08:40", content: "那霸公車總站 (旭橋)", note: "9號月台搭 54 號公車", highlight: true, type: "transport" }, { time: "09:30", content: "沖繩世界 (玉泉洞)", note: "10:30/12:30 EISA太鼓舞", link: "Okinawa World", type: "spot" }, { time: "12:00", content: "前往瀨長島", note: "建議計程車約¥4500", highlight: true, type: "transport" }, { time: "12:30", content: "瀨長島 (美食)", note: "幸福鬆餅、鮪魚丼、塔可飯", link: "Umikaji Terrace Senagajima", type: "food" }, { time: "15:00", content: "前往 Outlet", note: "TK02接駁車", type: "transport" }, { time: "15:10", content: "Ashibinaa Outlet", note: "精品", link: "Ashibinaa Outlet", type: "shop" }, { time: "16:10", content: "Sports Depo", note: "體育用品", link: "Sports Depo Toyosaki", type: "shop" }, { time: "17:00", content: "回那霸市區", note: "搭 89 號公車", type: "transport" }, { time: "18:30", content: "Shimabutaya", note: "阿古豬炸豬排", link: "Shimabutaya Kumoji", type: "food" } ] },
-            { day: 4, date: "2/27 (五)", title: "甜點與海景", events: [ { time: "10:00", content: "達磨寺 (西來院)", note: "祈求幸運，參拜禮儀同神社", link: "Daruma Temple Naha", type: "spot" }, { time: "11:15", content: "移動：往港川", note: "搭計程車 (約15分)", type: "transport" }, { time: "11:30", content: "港川外人住宅", note: "oHacorte、TangTang、可麗露", link: "Minatogawa Stateside Town", type: "spot" }, { time: "13:45", content: "移動：往PARCO", note: "搭計程車 (約10分)", type: "transport" }, { time: "14:00", content: "PARCO CITY", note: "海景百貨，3F 寶可夢中心", link: "SAN-A Naha Main Place", type: "shop" }, { time: "17:00", content: "回那霸市區", note: "搭 32/385 號公車", type: "transport" }, { time: "18:40", content: "燒肉 Buchi", note: "回市區吃燒肉", link: "Yakiniku Buchi Kumoji", type: "food" } ] },
-            { day: 5, date: "2/28 (六)", title: "機場最後衝刺", events: [ { time: "10:30", content: "那霸機場", note: "國際線3F掛行李", type: "transport" }, { time: "11:10", content: "豬肉蛋飯糰", note: "國內線1F", link: "Pork Tamago Onigiri Naha Airport", type: "food" }, { time: "11:40", content: "伴手禮採購", note: "紅芋塔、蝦餅", type: "shop" }, { time: "13:30", content: "搭機返台 IT289", note: "Safe flight!", highlight: true, type: "transport" } ] }
+            { day: 4, date: "2/27 (五)", title: "甜點與海景", events: [ { time: "09:30", content: "搭單軌電車", note: "前往儀保站 (離達磨寺最近，步行約10分)", type: "transport" }, { time: "10:00", content: "達磨寺 (西來院)", note: "祈求幸運，參拜禮儀同神社", link: "Daruma Temple Naha", type: "spot" }, { time: "11:15", content: "移動：往港川", note: "搭計程車 (約15分)", type: "transport" }, { time: "11:30", content: "港川外人住宅", note: "oHacorte、TangTang、可麗露", link: "Minatogawa Stateside Town", type: "spot" }, { time: "13:45", content: "移動：往PARCO", note: "搭計程車 (約10分)", type: "transport" }, { time: "14:00", content: "PARCO CITY", note: "海景百貨，3F 寶可夢中心", link: "SAN-A Naha Main Place", type: "shop" }, { time: "17:00", content: "回那霸市區", note: "搭 32/385 號公車", type: "transport" }, { time: "18:40", content: "燒肉 Buchi", note: "回市區吃燒肉", link: "Yakiniku Buchi Kumoji", type: "food" } ] },
+            { day: 5, date: "2/28 (六)", title: "機場最後衝刺", events: [ { time: "10:00", content: "搭單軌電車", note: "前往那霸機場", type: "transport" }, { time: "10:30", content: "那霸機場", note: "國際線3F掛行李", type: "transport" }, { time: "11:10", content: "豬肉蛋飯糰", note: "國內線1F", link: "Pork Tamago Onigiri Naha Airport", type: "food" }, { time: "11:40", content: "伴手禮採購", note: "紅芋塔、蝦餅", type: "shop" }, { time: "13:30", content: "搭機返台 IT289", note: "Safe flight!", highlight: true, type: "transport" } ] }
         ];
         let itineraryData = JSON.parse(localStorage.getItem('okinawa_itinerary')) || defaultItineraryData;
 
         // Guide
         const guideData = [
             { id: 'kokusai', title: "國際通 (Kokusai Dori)", tags: ['shop','spot'], type: '購物', icon: 'fa-shopping-cart', color: 'text-pink-600', bg: 'bg-pink-50', desc: "那霸最熱鬧的大街，全長1.6公里，兩旁土產店、藥妝店、餐廳林立。每週日中午是步行者天國。", tips: "推薦去唐吉訶德、Calbee+ 現炸薯條、平和通商店街。", menu: "Calbee+ 現炸薯條, Blue Seal 冰淇淋" },
-            { id: 'souvenirs', title: "必買伴手禮推薦", tags: ['buy','shop'], type: '購物', icon: 'fa-gift', color: 'text-red-500', bg: 'bg-red-50', desc: "1. 御菓子御殿 (紅芋塔)\n2. 雪鹽夾心餅 (宮古島雪鹽)\n3. Fukugiya (年輪蛋糕)\n4. 蝦餅 (南風堂)", tips: "國內線機場 2F 是最後補貨天堂，種類最齊全。" },
+            { id: 'souvenirs', title: "必買伴手禮推薦", tags: ['buy','shop'], type: '購物', icon: 'fa-gift', color: 'text-red-500', bg: 'bg-red-50', desc: "1. 御菓子御殿 (紅芋塔)\n2. 雪鹽夾心餅 (宮古島雪鹽)\n3. Fukugiya (年輪蛋糕)\n4.蝦餅 (南風堂)", tips: "國內線機場 2F 是最後補貨天堂，種類最齊全。" },
             { id: 'jack', title: "傑克牛排 (Jack's Steak)", tags: ['food'], type: '美食', icon: 'fa-utensils', color: 'text-red-500', bg: 'bg-red-50', desc: "1953年開業老店。店外紅綠燈號顯示空位。", tips: "必點 Tenderloin Steak (S號)，No.1 醬汁偏酸建議先吃原味。", menu: "特選里脊牛排 (Tenderloin), 紐約客牛排, 漢堡排, 塔可飯", reserve: "不可預約 (現場候位，看紅綠燈號)" },
             { id: 'nami', title: "波上宮", tags: ['spot'], type: '景點', icon: 'fa-torii-gate', color: 'text-orange-500', bg: 'bg-orange-50', desc: "建在懸崖上的神社，紅瓦屋頂超美。參拜前請在手水舍洗手漱口，禮儀為二拜二拍手一拜。", tips: "最佳拍攝點在旁邊的波之上橋人行道。" },
             { id: 'makishi', title: "牧志公設市場", tags: ['food','spot'], type: '景點', icon: 'fa-fish', color: 'text-blue-500', bg: 'bg-blue-50', desc: "那霸人的廚房，一樓是生鮮市場，二樓是食堂。可以體驗在一樓買海鮮，去二樓請店家代客料理。", tips: "推薦嘗試夜光貝生魚片、沖繩近海鮮魚湯。", menu: "生魚片拼盤, 海鮮湯, 沖繩炒苦瓜" },
@@ -969,24 +991,16 @@
             else { alert("請輸入有效金額"); }
         }
         function updateCurrencyLabel() {
-            const dir = document.getElementById('currency-direction').value;
-            const input = document.getElementById('calc-input');
-            input.placeholder = dir === 'jpy_to_twd' ? '輸入日幣' : '輸入台幣';
-            calculateCurrency();
+            // Removed logic as select is removed
         }
         function calculateCurrency() {
-            const dir = document.getElementById('currency-direction').value;
+            // Simplified: Always JPY -> TWD
             const input = document.getElementById('calc-input').value;
             const rate = parseFloat(document.getElementById('rate-input').value);
             try {
                 const val = eval(input);
-                if (dir === 'jpy_to_twd') {
-                    const twd = Math.round(val * rate);
-                    document.getElementById('calc-result').innerText = `¥${val} ≈ NT$${twd}`;
-                } else {
-                    const jpy = Math.round(val / rate);
-                    document.getElementById('calc-result').innerText = `NT$${val} ≈ ¥${jpy}`;
-                }
+                const twd = Math.round(val * rate);
+                document.getElementById('calc-result').innerText = `¥${val} ≈ NT$${twd}`;
             } catch (e) {}
         }
         function addExpense() {
